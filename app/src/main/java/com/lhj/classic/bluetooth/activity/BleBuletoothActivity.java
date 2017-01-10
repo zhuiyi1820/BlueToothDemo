@@ -121,6 +121,7 @@ public class BleBuletoothActivity extends BaseActivity implements View.OnClickLi
         startAnimation(fab);
         handler.sendEmptyMessageDelayed(111, 5000);
         mBluetoothAdapter.startLeScan(this);
+        flag = true;
     }
 
     public void onEventMainThread(EventBusEntity eventBusEntity) {
@@ -133,7 +134,7 @@ public class BleBuletoothActivity extends BaseActivity implements View.OnClickLi
             case R.id.base_right_rl:
                 if (openBleBluetooth()) {
                     if (flag) {
-                        stopSearch();
+                        Toast.makeText(this, "正在搜索...", Toast.LENGTH_SHORT).show();
                     } else {
                         startSearch();
                     }
@@ -160,7 +161,7 @@ public class BleBuletoothActivity extends BaseActivity implements View.OnClickLi
             switch (msg.what) {
 
                 case 111://搜索5秒后停止搜索
-                    flag = true;
+                    flag = false;
                     stopSearch();
                     break;
 
