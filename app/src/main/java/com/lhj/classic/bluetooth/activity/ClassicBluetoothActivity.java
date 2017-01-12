@@ -47,7 +47,7 @@ import java.util.ArrayList;
  * ┴┬┴┬┴┬┴ ＼＿＿＿＼　　　　 ﹨／▔＼﹨／▔＼ ╃天天开心╃
  * ▲△▲▲╓╥╥╥╥╥╥╥╥＼　　 ∕　 ／▔﹨　／▔
  * 　＊＊＊╠╬╬╬╬╬╬╬╬＊﹨　　／　　／／ ╃事事顺心╃整和不错
- * <p>
+ * <p/>
  * 作者：linhongjie
  * 时间：2016/11/1 09:48
  * 描述：
@@ -87,8 +87,7 @@ public class ClassicBluetoothActivity extends BaseActivity implements View.OnCli
     }
 
     private void initReceiver() {
-        // 设置广播信息过滤   
-        IntentFilter intentFilter = new IntentFilter();
+        IntentFilter intentFilter = new IntentFilter();// 设置广播信息过滤   
         intentFilter.addAction(BluetoothDevice.ACTION_FOUND);
         intentFilter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);//设备连接状态改变的广播
         intentFilter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);//扫描模式变化广播
@@ -104,43 +103,38 @@ public class ClassicBluetoothActivity extends BaseActivity implements View.OnCli
     private void startSearch() {
         snackbar = Snackbar.make(fab, "搜索蓝牙中...", Snackbar.LENGTH_LONG).setAction("Action", null);
         snackbar.show();
-        if (fab.getAnimation() == null) {
-            startAnimation(fab);
-            addBluetooth(mainList);
-            lvAdapter.notifyDataSetChanged();
-        }
+        startAnimation(fab);
+        addBluetooth(mainList);
+        lvAdapter.notifyDataSetChanged();
     }
 
     /**
-     * 蓝牙配对请求与扫描ADD刷新状态
+     * 蓝牙配对请求与扫描刷新状态
      */
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) { // 发现设备的广播
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-                if (!mainList.contains(device)) {
-                    mainList.add(device);
-                    lvAdapter.notifyDataSetChanged();
-                }
-
-                // 搜索到的不是已经绑定的蓝牙设备
-                if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
-                    // 显示在TextView上
-                }
-
-            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-                stopAnimation(fab);
-            } else {
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                /*if (device.getBondState() == BluetoothDevice.BOND_BONDED) {//已匹配的设备
+                    if (device != null) {
+                        if (!mainList.contains(device)) {
+                            mainList.add(device);
+                            lvAdapter.notifyDataSetChanged();
+                        }
+                    }
+                }*/
                 if (device != null) {
-                    if (!mainList.contains(device)) {
+                    if (!mainList.contains(device)) {//未包含则添加
                         mainList.add(device);
                         lvAdapter.notifyDataSetChanged();
                     }
                 }
+
+            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {//
+                Toast.makeText(ClassicBluetoothActivity.this, "搜索结束...", Toast.LENGTH_LONG).show();
+                stopAnimation(fab);
             }
             Log.e("BLUE", "size = " + mainList.size());
 
@@ -167,8 +161,7 @@ public class ClassicBluetoothActivity extends BaseActivity implements View.OnCli
      */
     protected void connectDevice(BluetoothDevice mBluetoothDevice) {
         try {
-            // 连接建立之前的先配对
-            if (mBluetoothDevice.getBondState() == BluetoothDevice.BOND_NONE) {
+            if (mBluetoothDevice.getBondState() == BluetoothDevice.BOND_NONE) {//配对
                 ClsUtils.createBond(mBluetoothDevice.getClass(), mBluetoothDevice);
             } else {
                 ClsUtils.removeBond(BluetoothDevice.class, mBluetoothDevice);
@@ -176,7 +169,7 @@ public class ClassicBluetoothActivity extends BaseActivity implements View.OnCli
                 Toast.makeText(this, "蓝牙配对解除", Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
-            Toast.makeText(this, "蓝牙配对失败", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "蓝牙配对失败", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
     }
@@ -187,6 +180,11 @@ public class ClassicBluetoothActivity extends BaseActivity implements View.OnCli
         switch (v.getId()) {
             case R.id.base_right_rl:
                 if (openBluetooth()) {
+                    if (adapter.isDiscovering()) {
+                        adapter.cancelDiscovery();
+                        Toast.makeText(this,"正在停止搜索...",Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     startSearch();
                 }
                 break;

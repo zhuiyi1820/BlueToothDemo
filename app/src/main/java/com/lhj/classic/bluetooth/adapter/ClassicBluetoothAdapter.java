@@ -77,11 +77,11 @@ public class ClassicBluetoothAdapter extends BaseAdapter {
         final BluetoothDevice device = mainList.get(position);
         holder.title.setText("设备名：\t\r   " + device.getName() + "\nMAC地址：" + device.getAddress() + getState(device.getBondState()));
         if(device.getBondState()==BluetoothDevice.BOND_NONE){
-            holder.item_btn1.setText("连接");
+            holder.item_btn1.setText("建立配对");
         }else if(device.getBondState()==BluetoothDevice.BOND_BONDING){
-            holder.item_btn1.setText("取消");
+            holder.item_btn1.setText("取消配对");
         }else if(device.getBondState()==BluetoothDevice.BOND_BONDED){
-            holder.item_btn1.setText("解绑");
+            holder.item_btn1.setText("解除配对");
         }else{
             holder.item_btn1.setText("");
             holder.item_btn1.setVisibility(View.GONE);
@@ -101,9 +101,9 @@ public class ClassicBluetoothAdapter extends BaseAdapter {
 
                 return "\n设备状态：未配对";
             case BluetoothDevice.BOND_BONDING:
-                return "\n设备状态：正在连接";
+                return "\n设备状态：配对中";
             case BluetoothDevice.BOND_BONDED:
-                return "\n设备状态：已连接";
+                return "\n设备状态：已配对";
             default:
                 return "\n设备状态：未知";
         }

@@ -39,7 +39,7 @@ import de.greenrobot.event.EventBus;
  * 描述：蓝牙配对广播
  */
 public class PairingRequest extends BroadcastReceiver {
-    String strPsw = "1234";
+    String strPsw = "0000";
     final String ACTION_PAIRING_REQUEST = "android.bluetooth.device.action.PAIRING_REQUEST";
 
     @Override
@@ -56,7 +56,6 @@ public class PairingRequest extends BroadcastReceiver {
                     abortBroadcast();//如果没有将广播终止，则会出现一个一闪而过的配对框。
                     //3.调用setPin方法进行配对...
                     boolean ret = ClsUtils.setPin(device.getClass(), device, strPsw);
-
                     EventBusEntity ebe = new EventBusEntity();
                     ebe.setMsg("blue_success");
                     ebe.setResult(ret);
