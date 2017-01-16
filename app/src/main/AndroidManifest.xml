@@ -25,8 +25,9 @@
         <activity android:name=".activity.BleBuletoothActivity"/>
         <activity android:name=".activity.ClassicBluetoothActivity"/>
         <activity android:name=".activity.BlueToothChatActivity"/>
-        <receiver android:name=".receiver.PairingRequest">
-            <intent-filter>
+        <receiver
+            android:name=".receiver.BuletoothPairingReceiver">
+            <intent-filter android:priority="1000">
                 <action android:name="android.bluetooth.device.action.PAIRING_REQUEST" />
             </intent-filter>
         </receiver>

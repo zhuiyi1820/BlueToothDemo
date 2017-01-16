@@ -75,7 +75,7 @@ public class ChatService {
     private static final UUID UUID_ANDROID_DEVICE =
     		UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
     private static final UUID UUID_OTHER_DEVICE =
-    		UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    		UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");//蓝牙串口服务
 
     // Member fields
     private final BluetoothAdapter mAdapter;

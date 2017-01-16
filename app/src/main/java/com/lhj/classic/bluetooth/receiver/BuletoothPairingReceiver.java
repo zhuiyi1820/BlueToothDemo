@@ -38,24 +38,24 @@ import de.greenrobot.event.EventBus;
  * 时间：2016/10/31 17:01
  * 描述：蓝牙配对广播
  */
-public class PairingRequest extends BroadcastReceiver {
+public class BuletoothPairingReceiver extends BroadcastReceiver {
     String strPsw = "0000";
     final String ACTION_PAIRING_REQUEST = "android.bluetooth.device.action.PAIRING_REQUEST";
 
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals(ACTION_PAIRING_REQUEST)) {
-
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
                 try {
-                    //1.确认配对
-                    ClsUtils.setPairingConfirmation(device.getClass(), device, true);
-                    //2.终止有序广播
-                    Log.i("order...", "isOrderedBroadcast:" + isOrderedBroadcast() + ",isInitialStickyBroadcast:" + isInitialStickyBroadcast());
                     abortBroadcast();//如果没有将广播终止，则会出现一个一闪而过的配对框。
-                    //3.调用setPin方法进行配对...
+                    //确认配对
+                    ClsUtils.setPairingConfirmation(device.getClass(), device, true);
+                    //调用setPin方法进行配对...
                     boolean ret = ClsUtils.setPin(device.getClass(), device, strPsw);
+                    //终止有序广播
+                    Log.i("order...", "isOrderedBroadcast:" + isOrderedBroadcast() + ",isInitialStickyBroadcast:" + isInitialStickyBroadcast());
+
                     EventBusEntity ebe = new EventBusEntity();
                     ebe.setMsg("blue_success");
                     ebe.setResult(ret);
@@ -65,12 +65,9 @@ public class PairingRequest extends BroadcastReceiver {
 //                    Toast.makeText(context, "配对信息" + device.getName()+"=="+ret, Toast.LENGTH_LONG).show();
 
                 } catch (Exception e) {
-                    // TODO Auto-generated catch block
                     Toast.makeText(context, "请求连接错误...", Toast.LENGTH_LONG).show();
                 }
             }
-            // */
-            // pair(device.getAddress(),strPsw);
         }
     }
 }

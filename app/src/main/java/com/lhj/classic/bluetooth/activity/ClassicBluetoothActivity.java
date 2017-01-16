@@ -153,7 +153,6 @@ public class ClassicBluetoothActivity extends BaseActivity implements View.OnCli
 
         }
     }
-
     /**
      * 蓝牙配对
      *

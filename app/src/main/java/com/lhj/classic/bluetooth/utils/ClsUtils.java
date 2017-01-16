@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
  * ┴┬┴┬┴┬┴ ＼＿＿＿＼　　　　 ﹨／▔＼﹨／▔＼ ╃天天开心╃
  * ▲△▲▲╓╥╥╥╥╥╥╥╥＼　　 ∕　 ／▔﹨　／▔
  * 　＊＊＊╠╬╬╬╬╬╬╬╬＊﹨　　／　　／／ ╃事事顺心╃整和不错
- * <p>
+ * <p/>
  * 作者：linhongjie
  * 时间：2016/11/1 09:48
  * 描述：蓝牙配对函数工具
@@ -72,7 +72,6 @@ public class ClsUtils {
             // throw new RuntimeException(e.getMessage());
             e.printStackTrace();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return true;
@@ -130,7 +129,6 @@ public class ClsUtils {
             // throw new RuntimeException(e.getMessage());  
             e.printStackTrace();
         } catch (Exception e) {
-            // TODO Auto-generated catch block  
             e.printStackTrace();
         }
     }
