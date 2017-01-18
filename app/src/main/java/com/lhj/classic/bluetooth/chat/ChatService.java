@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.lhj.classic.bluetooth.model.EventBusEntity;
 
@@ -86,7 +87,7 @@ public class ChatService {
     private int mState;
     private boolean isAndroid = ChatState.DEVICE_ANDROID;
     private final EventBusEntity ebe;
-
+    Context context;
     // Constructor. Prepares a new BluetoothChat session
     // context : The UI Activity Context
     // handler : A Handler to send messages back to the UI Activity
@@ -94,6 +95,7 @@ public class ChatService {
         mAdapter = BluetoothAdapter.getDefaultAdapter();
         mState = ChatState.STATE_NONE;
         mHandler = handler;
+        this.context = context;
         ebe = new EventBusEntity();
     }
 
@@ -258,6 +260,13 @@ public class ChatService {
         private String mSocketType;
         boolean isRunning = true;
 
+        private  boolean mmss(){
+            if(mmServerSocket==null){
+                return false;
+            }
+            return true;
+        }
+
         public AcceptThread(boolean isAndroid) {
             BluetoothServerSocket tmp = null;
 
@@ -267,7 +276,14 @@ public class ChatService {
                 	tmp = mAdapter.listenUsingRfcommWithServiceRecord(NAME_SECURE, UUID_ANDROID_DEVICE);
             	else
                 	tmp = mAdapter.listenUsingRfcommWithServiceRecord(NAME_SECURE, UUID_OTHER_DEVICE);
-            } catch (IOException e) { }
+            } catch (IOException e) {
+                try {
+                    throw new SocketException(context, "error-AcceptThread", e);
+                } catch (SocketException e1) {
+                    e1.printStackTrace();
+                    Log.e("soketException","error-AcceptThread");
+                }
+            }
             mmServerSocket = tmp;
         }
 
@@ -280,8 +296,15 @@ public class ChatService {
                 try {
                     // This is a blocking call and will only return on a
                     // successful connection or an exception
+                    if(mmss())
                     socket = mmServerSocket.accept();
                 } catch (IOException e) {
+                    try {
+                        throw new SocketException(context, "error-AcceptThread-run1", e);
+                    } catch (SocketException e1) {
+                        e1.printStackTrace();
+                        Log.e("soketException","error-AcceptThread-run1");
+                    }
                     break;
                 }
 
@@ -300,7 +323,14 @@ public class ChatService {
                             // Either not ready or already connected. Terminate new socket.
                             try {
                                 socket.close();
-                            } catch (IOException e) { }
+                            } catch (IOException e) {
+                                try {
+                                    throw new SocketException(context, "error-AcceptThread-run2", e);
+                                } catch (SocketException e1) {
+                                    e1.printStackTrace();
+                                    Log.e("soketException","error-AcceptThread-run2");
+                                }
+                            }
                             break;
                         }
                     }
@@ -310,9 +340,18 @@ public class ChatService {
 
         public void cancel() {
             try {
-                mmServerSocket.close();
+                    if (mmss()){
+                        mmServerSocket.close();
+                    }
                 mmServerSocket = null;
-            } catch (IOException e) { }
+            } catch (IOException e) {
+                try {
+                    throw new SocketException(context, "error-cancel", e);
+                } catch (SocketException e1) {
+                    e1.printStackTrace();
+                    Log.e("soketException","error-cancel");
+                }
+            }
         }
 
         public void kill() {
@@ -329,10 +368,16 @@ public class ChatService {
         private final BluetoothDevice mmDevice;
         private String mSocketType;
 
+        private boolean mms(){
+            if(mmSocket==null){
+                return false;
+            }
+            return true;
+        }
+
         public ConnectThread(BluetoothDevice device) {
             mmDevice = device;
             BluetoothSocket tmp = null;
-
             // Get a BluetoothSocket for a connection with the
             // given BluetoothDevice
             try {
@@ -340,7 +385,14 @@ public class ChatService {
             		tmp = device.createRfcommSocketToServiceRecord(UUID_ANDROID_DEVICE);
             	else
             		tmp = device.createRfcommSocketToServiceRecord(UUID_OTHER_DEVICE);
-            } catch (IOException e) { }
+            } catch (IOException e) {
+                try {
+                    throw new SocketException(context, "error-ConnectThread", e);
+                } catch (SocketException e1) {
+                    e1.printStackTrace();
+                    Log.e("soketException","error-ConnectThread");
+                }
+            }
             mmSocket = tmp;
         }
 
@@ -352,12 +404,21 @@ public class ChatService {
             try {
                 // This is a blocking call and will only return on a
                 // successful connection or an exception
+                if(mms())
                 mmSocket.connect();
             } catch (IOException e) {
                 // Close the socket
                 try {
+                    if(mms())
                     mmSocket.close();
-                } catch (IOException e2) { }
+                } catch (IOException e2) {
+                    try {
+                        throw new SocketException(context, "error-ConnectThread-run1", e);
+                    } catch (SocketException e1) {
+                        e1.printStackTrace();
+                        Log.e("soketException","error-ConnectThread-run1");
+                    }
+                }
                 connectionFailed();
                 return;
             }
@@ -373,8 +434,16 @@ public class ChatService {
 
         public void cancel() {
             try {
+                if(mms())
                 mmSocket.close();
-            } catch (IOException e) { }
+            } catch (IOException e) {
+                try {
+                    throw new SocketException(context, "error-cancel", e);
+                } catch (SocketException e1) {
+                    e1.printStackTrace();
+                    Log.e("soketException","error-cancel");
+                }
+            }
         }
     }
 
@@ -384,7 +453,12 @@ public class ChatService {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
-
+        private boolean mms(){
+            if(mmSocket==null){
+                return false;
+            }
+            return true;
+        }
         public ConnectedThread(BluetoothSocket socket, String socketType) {
             mmSocket = socket;
             InputStream tmpIn = null;
@@ -394,7 +468,14 @@ public class ChatService {
             try {
                 tmpIn = socket.getInputStream();
                 tmpOut = socket.getOutputStream();
-            } catch (IOException e) { }
+            } catch (IOException e) {
+                try {
+                    throw new SocketException(context, "error-ConnectedThread", e);
+                } catch (SocketException e1) {
+                    e1.printStackTrace();
+                    Log.e("soketException","error-ConnectedThread");
+                }
+            }
 
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
@@ -452,13 +533,28 @@ public class ChatService {
                 // Share the sent message back to the UI Activity
                 mHandler.obtainMessage(ChatState.MESSAGE_WRITE
                 		, -1, -1, buffer).sendToTarget();
-            } catch (IOException e) { }
+            } catch (IOException e) {
+                try {
+                    throw new SocketException(context, "error-write", e);
+                } catch (SocketException e1) {
+                    e1.printStackTrace();
+                    Log.e("soketException","error-write");
+                }
+            }
         }
 
         public void cancel() {
             try {
+                if(mms())
                 mmSocket.close();
-            } catch (IOException e) { }
+            } catch (IOException e) {
+                try {
+                    throw new SocketException(context, "error-cancel", e);
+                } catch (SocketException e1) {
+                    e1.printStackTrace();
+                    Log.e("soketException","error-cancel");
+                }
+            }
         }
     }
 }
