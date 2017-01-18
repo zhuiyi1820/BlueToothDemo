@@ -55,7 +55,6 @@ public class BuletoothPairingReceiver extends BroadcastReceiver {
                     boolean ret = ClsUtils.setPin(device.getClass(), device, strPsw);
                     //终止有序广播
                     Log.i("order...", "isOrderedBroadcast:" + isOrderedBroadcast() + ",isInitialStickyBroadcast:" + isInitialStickyBroadcast());
-
                     EventBusEntity ebe = new EventBusEntity();
                     ebe.setMsg("blue_success");
                     ebe.setResult(ret);

@@ -1,5 +1,6 @@
 package com.lhj.classic.bluetooth.utils;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.util.Log;
 
@@ -34,8 +35,12 @@ import java.lang.reflect.Method;
  */
 public class ClsUtils {
     /**
-     * 与设备配对 参考源码：platform/packages/apps/Settings.git
-     * /Settings/src/com/android/settings/bluetooth/CachedBluetoothDevice.java
+     * 与设备配对
+     *
+     * @param btClass
+     * @param btDevice
+     * @return
+     * @throws Exception
      */
     static public boolean createBond(Class btClass, BluetoothDevice btDevice)
             throws Exception {
@@ -45,8 +50,12 @@ public class ClsUtils {
     }
 
     /**
-     * 与设备解除配对 参考源码：platform/packages/apps/Settings.git
-     * /Settings/src/com/android/settings/bluetooth/CachedBluetoothDevice.java
+     * 与设备解除配对
+     *
+     * @param btClass
+     * @param btDevice
+     * @return
+     * @throws Exception
      */
     static public boolean removeBond(Class<?> btClass, BluetoothDevice btDevice)
             throws Exception {
@@ -55,6 +64,15 @@ public class ClsUtils {
         return returnValue.booleanValue();
     }
 
+    /**
+     * 设置PIN
+     *
+     * @param btClass
+     * @param btDevice
+     * @param str
+     * @return
+     * @throws Exception
+     */
     static public boolean setPin(Class<? extends BluetoothDevice> btClass, BluetoothDevice btDevice,
                                  String str) throws Exception {
         try {
@@ -78,7 +96,14 @@ public class ClsUtils {
 
     }
 
-    // 取消用户输入
+    /**
+     * 取消用户输入
+     *
+     * @param btClass
+     * @param device
+     * @return
+     * @throws Exception
+     */
     static public boolean cancelPairingUserInput(Class<?> btClass,
                                                  BluetoothDevice device) throws Exception {
         Method createBondMethod = btClass.getMethod("cancelPairingUserInput");
@@ -87,7 +112,14 @@ public class ClsUtils {
         return returnValue.booleanValue();
     }
 
-    // 取消配对
+    /**
+     * 取消配对
+     *
+     * @param btClass
+     * @param device
+     * @return
+     * @throws Exception
+     */
     static public boolean cancelBondProcess(Class<?> btClass,
                                             BluetoothDevice device)
 
@@ -97,8 +129,14 @@ public class ClsUtils {
         return returnValue.booleanValue();
     }
 
-    //确认配对
-
+    /**
+     * 确认配对
+     *
+     * @param btClass
+     * @param device
+     * @param isConfirm
+     * @throws Exception
+     */
     static public void setPairingConfirmation(Class<?> btClass, BluetoothDevice device, boolean isConfirm) throws Exception {
         Method setPairingConfirmation = btClass.getDeclaredMethod("setPairingConfirmation", boolean.class);
         setPairingConfirmation.invoke(device, isConfirm);
@@ -106,6 +144,8 @@ public class ClsUtils {
 
 
     /**
+     * 打印class信息
+     *
      * @param clsShow
      */
     static public void printAllInform(Class clsShow) {
@@ -128,6 +168,43 @@ public class ClsUtils {
         } catch (IllegalArgumentException e) {
             // throw new RuntimeException(e.getMessage());  
             e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 打开可见性
+     *
+     * @param adapter
+     * @param timeout
+     */
+    static public void setDiscoverableTimeout(BluetoothAdapter adapter, int timeout) {
+        try {
+            Method setDiscoverableTimeout = BluetoothAdapter.class.getMethod("setDiscoverableTimeout", int.class);
+            setDiscoverableTimeout.setAccessible(true);
+            Method setScanMode = BluetoothAdapter.class.getMethod("setScanMode", int.class, int.class);
+            setScanMode.setAccessible(true);
+            setDiscoverableTimeout.invoke(adapter, timeout);
+            setScanMode.invoke(adapter, BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE, timeout);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 关闭可见性
+     *
+     * @param adapter
+     */
+    static public void closeDiscoverableTimeout(BluetoothAdapter adapter) {
+        try {
+            Method setDiscoverableTimeout = BluetoothAdapter.class.getMethod("setDiscoverableTimeout", int.class);
+            setDiscoverableTimeout.setAccessible(true);
+            Method setScanMode = BluetoothAdapter.class.getMethod("setScanMode", int.class, int.class);
+            setScanMode.setAccessible(true);
+            setDiscoverableTimeout.invoke(adapter, 1);
+            setScanMode.invoke(adapter, BluetoothAdapter.SCAN_MODE_CONNECTABLE, 1);
         } catch (Exception e) {
             e.printStackTrace();
         }

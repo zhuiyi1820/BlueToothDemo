@@ -58,6 +58,7 @@ public class ClassicBluetoothActivity extends BaseActivity implements View.OnCli
     ImageView fab;
     ArrayList<BluetoothDevice> mainList = new ArrayList<>();
     ClassicBluetoothAdapter lvAdapter;
+    private boolean flag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +74,7 @@ public class ClassicBluetoothActivity extends BaseActivity implements View.OnCli
         TextView base_left_tv = (TextView) findViewById(R.id.base_left_tv);
         TextView base_title = (TextView) findViewById(R.id.base_title);
         TextView base_right_tv = (TextView) findViewById(R.id.base_right_tv);
+
         base_title.setText("蓝牙配对");
         base_right_tv.setText("");
         base_left_tv.setText("返回");
@@ -80,6 +82,9 @@ public class ClassicBluetoothActivity extends BaseActivity implements View.OnCli
         fab = (ImageView) findViewById(R.id.base_right_iv2);
         fab.setVisibility(View.VISIBLE);
         base_right_rl.setOnClickListener(this);
+        ImageView base_right_iv3 = (ImageView) findViewById(R.id.base_right_iv3);
+        base_right_iv3.setVisibility(View.VISIBLE);
+        base_right_iv3.setOnClickListener(this);
         ListView lv = (ListView) findViewById(R.id.main_lv);
         lvAdapter = new ClassicBluetoothAdapter(this, mainList, this);
         lv.setAdapter(lvAdapter);
@@ -153,6 +158,7 @@ public class ClassicBluetoothActivity extends BaseActivity implements View.OnCli
 
         }
     }
+
     /**
      * 蓝牙配对
      *
@@ -181,7 +187,7 @@ public class ClassicBluetoothActivity extends BaseActivity implements View.OnCli
                 if (openBluetooth()) {
                     if (adapter.isDiscovering()) {
                         adapter.cancelDiscovery();
-                        Toast.makeText(this,"正在停止搜索...",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "正在停止搜索...", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     startSearch();
@@ -189,6 +195,20 @@ public class ClassicBluetoothActivity extends BaseActivity implements View.OnCli
                 break;
             case R.id.base_left_rl:
                 finish();
+                break;
+            case R.id.base_right_iv3:
+                if (!openBluetooth()) {
+                    return;
+                }
+                if (flag) {
+                    ClsUtils.closeDiscoverableTimeout(adapter);
+                    Toast.makeText(this, "蓝牙被检测已关闭", Toast.LENGTH_SHORT).show();
+                    flag = false;
+                } else {
+                    ClsUtils.setDiscoverableTimeout(adapter, 3000);
+                    Toast.makeText(this, "蓝牙被检测已打开", Toast.LENGTH_SHORT).show();
+                    flag = true;
+                }
                 break;
         }
     }
