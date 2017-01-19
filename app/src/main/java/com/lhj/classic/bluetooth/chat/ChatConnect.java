@@ -7,10 +7,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.Set;
 
 /**
  * ┴┬┴┬／￣＼＿／￣＼
@@ -33,80 +29,95 @@ import java.util.Set;
  * ┴┬┴┬┴┬┴ ＼＿＿＿＼　　　　 ﹨／▔＼﹨／▔＼ ╃天天开心╃
  * ▲△▲▲╓╥╥╥╥╥╥╥╥＼　　 ∕　 ／▔﹨　／▔
  * 　＊＊＊╠╬╬╬╬╬╬╬╬＊﹨　　／　　／／ ╃事事顺心╃整和不错
- * <p>
+ * <p/>
  * 作者：linhongjie
  * 时间：2017/1/9 15:16
- * 描述：蓝牙聊天通信
+ * 描述：蓝牙聊天通信控制
  */
 public class ChatConnect {
     public static String TAG = "ChatConnect";
-    // Listener for Bluetooth Status & Connection
+    /**
+     * 聊天会话消息类型监听
+     */
     private BluetoothStateListener mBluetoothStateListener = null;
-    private OnDataReceivedListener mDataReceivedListener = null;
-    private BluetoothConnectionListener mBluetoothConnectionListener = null;
-    private AutoConnectionListener mAutoConnectionListener = null;
 
-    // Context from activity which call this class
+    /**
+     * 聊天会话消息读取监听
+     */
+    private OnDataReceivedListener mDataReceivedListener = null;
+    /**
+     * 蓝牙会话连接监听
+     */
+    private BluetoothConnectionListener mBluetoothConnectionListener = null;
+
     private Context mContext;
 
-    // Local Bluetooth adapter
+    /**
+     * 蓝牙默认的适配器
+     */
     private BluetoothAdapter mBluetoothAdapter = null;
 
-    // Member object for the chat services
+    /**
+     * 蓝牙聊天服务
+     */
     private ChatService mChatService = null;
 
-    // Name and Address of the connected device
     private String mDeviceName = null;
     private String mDeviceAddress = null;
 
-    private boolean isAutoConnecting = false;
-    private boolean isAutoConnectionEnabled = false;
+    /**
+     * 是否已连接
+     */
     private boolean isConnected = false;
+    /**
+     * 是否福连接中
+     */
     private boolean isConnecting = false;
-    private boolean isServiceRunning = false;
 
-    private String keyword = "";
-    private boolean isAndroid = ChatState.DEVICE_ANDROID;
 
-    private BluetoothConnectionListener bcl;
-    private int c = 0;
 
-    public ChatConnect(Context context) {
+    public ChatConnect(Context context, BluetoothAdapter mBluetoothAdapter) {
         mContext = context;
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        this.mBluetoothAdapter = mBluetoothAdapter;
     }
 
+    /**
+     * 聊天会话消息类型监听
+     */
     public interface BluetoothStateListener {
-        public void onServiceStateChanged(int state);
+        void onServiceStateChanged(int state);
     }
 
+    /**
+     * 聊天会话消息读取监听
+     */
     public interface OnDataReceivedListener {
-        public void onDataReceived(byte[] data, String message);
+        void onDataReceived(byte[] data, String message);
     }
 
+    /**
+     * 蓝牙会话连接监听
+     */
     public interface BluetoothConnectionListener {
-        public void onDeviceConnected(String name, String address);
+        /**
+         * 设备连接中
+         *
+         * @param name
+         * @param address
+         */
+        void onDeviceConnected(String name, String address);
 
-        public void onDeviceDisconnected();
+        /**
+         * 设备断开连接
+         */
+        void onDeviceDisconnected();
 
-        public void onDeviceConnectionFailed();
+        /**
+         * 设备连接失败
+         */
+        void onDeviceConnectionFailed();
     }
 
-    public interface AutoConnectionListener {
-        public void onAutoConnectionStarted();
-
-        public void onNewConnection(String name, String address);
-    }
-
-    public boolean isBluetoothAvailable() {
-        try {
-            if (mBluetoothAdapter == null || mBluetoothAdapter.getAddress().equals(null))
-                return false;
-        } catch (NullPointerException e) {
-            return false;
-        }
-        return true;
-    }
 
     public boolean isBluetoothEnabled() {
         return mBluetoothAdapter.isEnabled();
@@ -116,70 +127,100 @@ public class ChatConnect {
         return mChatService != null;
     }
 
-    public boolean isAutoConnecting() {
-        return isAutoConnecting;
-    }
-
-    public boolean startDiscovery() {
-        return mBluetoothAdapter.startDiscovery();
-    }
-
-    public boolean isDiscovery() {
-        return mBluetoothAdapter.isDiscovering();
-    }
-
-    public boolean cancelDiscovery() {
-        return mBluetoothAdapter.cancelDiscovery();
-    }
-
+    /**
+     * 初始化蓝牙聊天服务
+     */
     public void setupService() {
-        Log.i(TAG, "setupService");
-        mChatService = new ChatService(mContext, mHandler);
+        mChatService = new ChatService(mContext, mHandler, mBluetoothAdapter);
     }
 
-    public BluetoothAdapter getBluetoothAdapter() {
-        return mBluetoothAdapter;
-    }
-
+    /**
+     * 蓝牙聊天当前连接状态
+     *
+     * @return
+     */
     public int getServiceState() {
-        Log.i(TAG, "getServiceState");
         if (mChatService != null)
             return mChatService.getState();
         else
             return -1;
     }
 
-    public void startService(boolean isAndroid) {
+    /**
+     * 启动
+     */
+    public void startService() {
         if (mChatService != null) {
             if (mChatService.getState() == ChatState.STATE_NONE) {
-                isServiceRunning = true;
-                mChatService.start(isAndroid);
-                this.isAndroid = isAndroid;
+                mChatService.start();
             }
         }
     }
 
+    /**
+     * 停止
+     */
     public void stopService() {
         if (mChatService != null) {
-            isServiceRunning = false;
             mChatService.stop();
         }
         new Handler().postDelayed(new Runnable() {
             public void run() {
                 if (mChatService != null) {
-                    isServiceRunning = false;
                     mChatService.stop();
                 }
             }
         }, 500);
     }
 
-    public void setDeviceTarget(boolean isAndroid) {
+    /**
+     * 重启/切换
+     *
+     */
+    public void setDeviceTarget() {
         stopService();
-        startService(isAndroid);
-        this.isAndroid = isAndroid;
+        startService();
     }
 
+    /**
+     * 连接
+     *
+     * @param address
+     */
+    public void connect(String address) {
+        Log.e(TAG, "connect address=" + address);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+        mChatService.connect(device);
+    }
+
+    /**
+     * 断开
+     */
+    public void disconnect() {
+        Log.i(TAG, "disconnect");
+        if (mChatService != null) {
+            mChatService.stop();
+            if (mChatService.getState() == ChatState.STATE_NONE) {
+                mChatService.start();
+            }
+        }
+    }
+
+    /**
+     * 发送
+     *
+     * @param data
+     */
+    public void send(String data) {
+        if (mChatService.getState() == ChatState.STATE_CONNECTED) {
+            Log.i(TAG, "send data.getBytes()=" + data.getBytes());
+            mChatService.write(data.getBytes());
+        }
+    }
+
+    /**
+     * 处理Handler接收的内容
+     */
     @SuppressLint("HandlerLeak")
     private final Handler mHandler = new Handler() {
         public void handleMessage(Message msg) {
@@ -205,19 +246,16 @@ public class ChatConnect {
                         }
                     }
                     break;
-                case ChatState.MESSAGE_DEVICE_NAME:
-                    Log.i(TAG, "MESSAGE_DEVICE_NAME");
+                case ChatState.MESSAGE_DEVICE_INFO:
                     mDeviceName = msg.getData().getString(ChatState.DEVICE_NAME);
                     mDeviceAddress = msg.getData().getString(ChatState.DEVICE_ADDRESS);
                     if (mBluetoothConnectionListener != null)
                         mBluetoothConnectionListener.onDeviceConnected(mDeviceName, mDeviceAddress);
+                    Log.i(TAG, "MESSAGE_DEVICE_NAME" + mDeviceName);
+                    Log.i(TAG, "MESSAGE_DEVICE_NAME" + mDeviceAddress);
                     isConnected = true;
                     break;
-                case ChatState.MESSAGE_TOAST:
-                    Log.i(TAG, "MESSAGE_TOAST");
-                    Toast.makeText(mContext, msg.getData().getString(ChatState.TOAST)
-                            , Toast.LENGTH_SHORT).show();
-                    break;
+
                 case ChatState.MESSAGE_STATE_CHANGE:
                     Log.i(TAG, "MESSAGE_STATE_CHANGE" + msg.arg1);
                     if (mBluetoothStateListener != null)
@@ -225,15 +263,10 @@ public class ChatConnect {
                     if (isConnected && msg.arg1 != ChatState.STATE_CONNECTED) {
                         if (mBluetoothConnectionListener != null)
                             mBluetoothConnectionListener.onDeviceDisconnected();
-                        if (isAutoConnectionEnabled) {
-                            isAutoConnectionEnabled = false;
-                            autoConnect(keyword);
-                        }
                         isConnected = false;
                         mDeviceName = null;
                         mDeviceAddress = null;
                     }
-
                     if (!isConnecting && msg.arg1 == ChatState.STATE_CONNECTING) {
                         isConnecting = true;
                     } else if (isConnecting) {
@@ -248,23 +281,6 @@ public class ChatConnect {
         }
     };
 
-    public void connect(String address) {
-        Log.e(TAG, "connect address=" + address);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-        mChatService.connect(device);
-    }
-
-    public void disconnect() {
-        Log.i(TAG, "disconnect");
-        if (mChatService != null) {
-            isServiceRunning = false;
-            mChatService.stop();
-            if (mChatService.getState() == ChatState.STATE_NONE) {
-                isServiceRunning = true;
-                mChatService.start(isAndroid);
-            }
-        }
-    }
 
     public void setBluetoothStateListener(BluetoothStateListener listener) {
         mBluetoothStateListener = listener;
@@ -278,111 +294,10 @@ public class ChatConnect {
         mBluetoothConnectionListener = listener;
     }
 
-    public void setAutoConnectionListener(AutoConnectionListener listener) {
-        mAutoConnectionListener = listener;
-    }
 
     public void enable() {
         mBluetoothAdapter.enable();
     }
 
-    public void send(byte[] data) {
-        Log.i(TAG, "send byte data=" + data);
-        if (mChatService.getState() == ChatState.STATE_CONNECTED)
-            mChatService.write(data);
-    }
 
-    public void send(String data) {
-        if (mChatService.getState() == ChatState.STATE_CONNECTED) {
-            Log.i(TAG, "send data.getBytes()=" + data.getBytes());
-            mChatService.write(data.getBytes());
-        }
-    }
-
-    public String getConnectedDeviceName() {
-        return mDeviceName;
-    }
-
-    public String getConnectedDeviceAddress() {
-        return mDeviceAddress;
-    }
-
-    public String[] getPairedDeviceName() {
-        int c = 0;
-        Set<BluetoothDevice> devices = mBluetoothAdapter.getBondedDevices();
-        String[] name_list = new String[devices.size()];
-        for (BluetoothDevice device : devices) {
-            name_list[c] = device.getName();
-            c++;
-        }
-        return name_list;
-    }
-
-    public String[] getPairedDeviceAddress() {
-        int c = 0;
-        Set<BluetoothDevice> devices = mBluetoothAdapter.getBondedDevices();
-        String[] address_list = new String[devices.size()];
-        for (BluetoothDevice device : devices) {
-            address_list[c] = device.getAddress();
-            c++;
-        }
-        return address_list;
-    }
-
-
-    public void autoConnect(String keywordName) {
-        if (!isAutoConnectionEnabled) {
-            keyword = keywordName;
-            isAutoConnectionEnabled = true;
-            isAutoConnecting = true;
-            if (mAutoConnectionListener != null)
-                mAutoConnectionListener.onAutoConnectionStarted();
-            final ArrayList<String> arr_filter_address = new ArrayList<String>();
-            final ArrayList<String> arr_filter_name = new ArrayList<String>();
-            String[] arr_name = getPairedDeviceName();
-            String[] arr_address = getPairedDeviceAddress();
-            for (int i = 0; i < arr_name.length; i++) {
-                if (arr_name[i].contains(keywordName)) {
-                    arr_filter_address.add(arr_address[i]);
-                    arr_filter_name.add(arr_name[i]);
-                }
-            }
-
-            bcl = new BluetoothConnectionListener() {
-                public void onDeviceConnected(String name, String address) {
-                    bcl = null;
-                    isAutoConnecting = false;
-                }
-
-                public void onDeviceDisconnected() {
-                }
-
-                public void onDeviceConnectionFailed() {
-                    if (isServiceRunning) {
-                        if (isAutoConnectionEnabled) {
-                            c++;
-                            if (c >= arr_filter_address.size())
-                                c = 0;
-                            connect(arr_filter_address.get(c));
-                            if (mAutoConnectionListener != null)
-                                mAutoConnectionListener.onNewConnection(arr_filter_name.get(c)
-                                        , arr_filter_address.get(c));
-                        } else {
-                            bcl = null;
-                            isAutoConnecting = false;
-                        }
-                    }
-                }
-            };
-
-            setBluetoothConnectionListener(bcl);
-            c = 0;
-            if (mAutoConnectionListener != null)
-                mAutoConnectionListener.onNewConnection(arr_name[c], arr_address[c]);
-            if (arr_filter_address.size() > 0)
-                connect(arr_filter_address.get(c));
-            else
-                Toast.makeText(mContext, "Device name mismatch", Toast.LENGTH_SHORT).show();
-        }
-    }
 }

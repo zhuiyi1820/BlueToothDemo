@@ -26,7 +26,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.lhj.classic.bluetooth.model.EventBusEntity;
 
@@ -59,97 +58,129 @@ import de.greenrobot.event.EventBus;
  * ┴┬┴┬┴┬┴ ＼＿＿＿＼　　　　 ﹨／▔＼﹨／▔＼ ╃天天开心╃
  * ▲△▲▲╓╥╥╥╥╥╥╥╥＼　　 ∕　 ／▔﹨　／▔
  * 　＊＊＊╠╬╬╬╬╬╬╬╬＊﹨　　／　　／／ ╃事事顺心╃整和不错
- * <p>
+ * <p/>
  * 作者：linhongjie
  * 时间：2017/1/9 15:26
  * 描述：蓝牙聊天服务
  */
 @SuppressLint("NewApi")
 public class ChatService {
-	// Debugging
     private static final String TAG = "ChatService";
 
-    // Name for the SDP record when creating server socket
     private static final String NAME_SECURE = "Bluetooth Secure";
 
-    // Unique UUID for this application
     private static final UUID UUID_ANDROID_DEVICE =
-    		UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
+            UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
     private static final UUID UUID_OTHER_DEVICE =
-    		UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");//蓝牙串口服务
+            UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");//蓝牙串口服务
 
-    // Member fields
     private final BluetoothAdapter mAdapter;
     private final Handler mHandler;
     private AcceptThread mSecureAcceptThread;
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
     private int mState;
-    private boolean isAndroid = ChatState.DEVICE_ANDROID;
     private final EventBusEntity ebe;
     Context context;
-    // Constructor. Prepares a new BluetoothChat session
-    // context : The UI Activity Context
-    // handler : A Handler to send messages back to the UI Activity
-	public ChatService(Context context, Handler handler) {
-        mAdapter = BluetoothAdapter.getDefaultAdapter();
+
+    /**
+     * 准备一个新的bluetoothchat会话
+     *
+     * @param context
+     * @param handler
+     * @param mAdapter
+     */
+    public ChatService(Context context, Handler handler, BluetoothAdapter mAdapter) {
+        this.mAdapter = mAdapter;
         mState = ChatState.STATE_NONE;
         mHandler = handler;
         this.context = context;
         ebe = new EventBusEntity();
     }
 
-    
-    // Set the current state of the chat connection
-    // state : An integer defining the current connection state
+
+    /**
+     * 设置聊天连接的当前状态
+     *
+     * @param state
+     */
     private synchronized void setState(int state) {
         Log.d(TAG, "setState() " + mState + " -> " + state);
         ebe.setMsg("connectstate");
         ebe.setOstate(mState);
         ebe.setNstate(state);
-        ebe.setData(mState+"->"+state);
+        ebe.setData(mState + "->" + state);
         EventBus.getDefault().post(ebe);
         mState = state;
-        // Give the new state to the Handler so the UI Activity can update
+        //将新状态交给处理程序，以便UI活动可以更新
         mHandler.obtainMessage(ChatState.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
     }
 
-    // Return the current connection state. 
+    /**
+     * 返回当前连接状态
+     *
+     * @return
+     */
     public synchronized int getState() {
         return mState;
     }
 
-    // Start the chat service. Specifically start AcceptThread to begin a
-    // session in listening (server) mode. Called by the Activity onResume() 
-    public synchronized void start(boolean isAndroid) {
-        // Cancel any thread attempting to make a connection
-        if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
-        // Cancel any thread currently running a connection
-        if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
-        
+
+    /**
+     * 开始聊天
+     */
+    public synchronized void start() {
+        /**
+         * 取消试图连接的任何线程
+         */
+        if (mConnectThread != null) {
+            mConnectThread.cancel();
+            mConnectThread = null;
+        }
+        /**
+         *取消当前运行连接的任何线程
+         */
+        if (mConnectedThread != null) {
+            mConnectedThread.cancel();
+            mConnectedThread = null;
+        }
+
         setState(ChatState.STATE_LISTEN);
-        
-        // Start the thread to listen on a BluetoothServerSocket
+
+        /**
+         * 启动线程监听一个bluetoothserversocket
+         */
         if (mSecureAcceptThread == null) {
-            mSecureAcceptThread = new AcceptThread(isAndroid);
+            mSecureAcceptThread = new AcceptThread();
             mSecureAcceptThread.start();
-            ChatService.this.isAndroid = isAndroid;
         }
     }
 
-    // Start the ConnectThread to initiate a connection to a remote device
-    // device : The BluetoothDevice to connect
-    // secure : Socket Security type - Secure (true) , Insecure (false)
+    /**
+     * 开始connectthread发起一个连接到一个远程设备
+     *
+     * @param device 连接的蓝牙设备
+     */
     public synchronized void connect(BluetoothDevice device) {
-        // Cancel any thread attempting to make a connection
+        /**
+         * 取消试图连接的任何线程
+         */
         if (mState == ChatState.STATE_CONNECTING) {
-            if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
+            if (mConnectThread != null) {
+                mConnectThread.cancel();
+                mConnectThread = null;
+            }
         }
-
-        // Cancel any thread currently running a connection
-        if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
-
-        // Start the thread to connect with the given device
+        /**
+         * 取消当前运行连接的任何线程
+         */
+        if (mConnectedThread != null) {
+            mConnectedThread.cancel();
+            mConnectedThread = null;
+        }
+        /**
+         *启动线程与给定设备连接
+         */
         mConnectThread = new ConnectThread(device);
         mConnectThread.start();
         setState(ChatState.STATE_CONNECTING);
@@ -160,27 +191,49 @@ public class ChatService {
      * @param socket  The BluetoothSocket on which the connection was made
      * @param device  The BluetoothDevice that has been connected
      */
+    /**
+     * 开始connectedthread开始管理蓝牙连接
+     *
+     * @param socket
+     * @param device 已连接的蓝牙设备
+     */
     public synchronized void connected(BluetoothSocket socket, BluetoothDevice
-            device, final String socketType) {
-    	Log.i(TAG, "connected");
-        // Cancel the thread that completed the connection
-        if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
+            device) {
+        Log.i(TAG, "connected");
+        /**
+         * 取消完成连接的线程
+         */
+        if (mConnectThread != null) {
+            mConnectThread.cancel();
+            mConnectThread = null;
+        }
 
-        // Cancel any thread currently running a connection
-        if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
+        /**
+         * 取消当前运行连接的任何线程
+         */
+        if (mConnectedThread != null) {
+            mConnectedThread.cancel();
+            mConnectedThread = null;
+        }
 
-        // Cancel the accept thread because we only want to connect to one device
+        /**
+         * 取消接受线程，因为我们只想连接到一个设备
+         */
         if (mSecureAcceptThread != null) {
             mSecureAcceptThread.cancel();
             mSecureAcceptThread = null;
         }
 
-        // Start the thread to manage the connection and perform transmissions
-        mConnectedThread = new ConnectedThread(socket, socketType);
+        /**
+         * 启动线程管理连接并执行传输
+         */
+        mConnectedThread = new ConnectedThread(socket);
         mConnectedThread.start();
 
-        // Send the name of the connected device back to the UI Activity
-        Message msg = mHandler.obtainMessage(ChatState.MESSAGE_DEVICE_NAME);
+        /**
+         * 将连接的设备的名称返回到UI活动.
+         */
+        Message msg = mHandler.obtainMessage(ChatState.MESSAGE_DEVICE_INFO);
         Bundle bundle = new Bundle();
         bundle.putString(ChatState.DEVICE_NAME, device.getName());
         bundle.putString(ChatState.DEVICE_ADDRESS, device.getAddress());
@@ -190,10 +243,12 @@ public class ChatService {
         setState(ChatState.STATE_CONNECTED);
     }
 
-    // Stop all threads
+    /**
+     * 停止所有的线程
+     */
     public synchronized void stop() {
         if (mConnectThread != null) {
-        	mConnectThread.cancel();
+            mConnectThread.cancel();
             mConnectThread = null;
         }
 
@@ -204,172 +259,179 @@ public class ChatService {
 
         if (mSecureAcceptThread != null) {
             mSecureAcceptThread.cancel();
-        	mSecureAcceptThread.kill();
+            mSecureAcceptThread.kill();
             mSecureAcceptThread = null;
         }
         setState(ChatState.STATE_NONE);
     }
 
-    // Write to the ConnectedThread in an unsynchronized manner
-    // out : The bytes to write
+    /**
+     * Write to the ConnectedThread in an unsynchronized manner
+     *
+     * @param out
+     */
     public void write(byte[] out) {
-    	Log.i(TAG, "write out="+out);
-    	//Log.i(TAG, "write string out="+Bytes2HexString(out));
-        // Create temporary object
+        Log.e(TAG, "write out=" + out);
+        Log.e(TAG, "write string out=" + Bytes2HexString(out));
         ConnectedThread r;
-        // Synchronize a copy of the ConnectedThread
         synchronized (this) {
             if (mState != ChatState.STATE_CONNECTED) return;
             r = mConnectedThread;
         }
-        // Perform the write unsynchronized
         r.write(out);
     }
+
     /**
-     * byte[] תΪString
+     * byte[]转string
      */
-    public static String Bytes2HexString(byte[] b) { 
-        String ret = ""; 
-        for (int i = 0; i < b.length; i++) { 
-            String hex = Integer.toHexString(b[i] & 0xFF); 
-            if (hex.length() == 1) { 
-                hex = '0' + hex; 
-            } 
-            ret += hex.toUpperCase(); 
-        } 
-        return ret; 
-    } 
-    // Indicate that the connection attempt failed and notify the UI Activity
+    public static String Bytes2HexString(byte[] b) {
+        String ret = "";
+        for (int i = 0; i < b.length; i++) {
+            String hex = Integer.toHexString(b[i] & 0xFF);
+            if (hex.length() == 1) {
+                hex = '0' + hex;
+            }
+            ret += hex.toUpperCase();
+        }
+        return ret;
+    }
+
+    /**
+     * 指示连接尝试失败，重新连接
+     */
     private void connectionFailed() {
-        // Start the service over to restart listening mode
-        ChatService.this.start(ChatService.this.isAndroid);
+        ChatService.this.start();
     }
 
-    // Indicate that the connection was lost and notify the UI Activity
-    private void connectionLost() {
-        // Start the service over to restart listening mode
-        ChatService.this.start(ChatService.this.isAndroid);
-    }
-
-    // This thread runs while listening for incoming connections. It behaves
-    // like a server-side client. It runs until a connection is accepted
-    // (or until cancelled)
+    /**
+     * 此线程在侦听传入连接时运行。它的行为像一个服务器端客户端。它一直运行到连接被接受（或者直到被取消）
+     */
     private class AcceptThread extends Thread {
-        // The local server socket
         private BluetoothServerSocket mmServerSocket;
-        private String mSocketType;
         boolean isRunning = true;
 
-        private  boolean mmss(){
-            if(mmServerSocket==null){
+        private boolean mmss() {
+            if (mmServerSocket == null) {
                 return false;
             }
             return true;
         }
 
-        public AcceptThread(boolean isAndroid) {
+        public AcceptThread() {
             BluetoothServerSocket tmp = null;
 
-            // Create a new listening server socket
+            /**
+             *创建一个新的BluetoothServerSocket监听服务器套接字
+             */
             try {
-            	if(isAndroid)
-                	tmp = mAdapter.listenUsingRfcommWithServiceRecord(NAME_SECURE, UUID_ANDROID_DEVICE);
-            	else
-                	tmp = mAdapter.listenUsingRfcommWithServiceRecord(NAME_SECURE, UUID_OTHER_DEVICE);
+                if (ChatState.DEVICE_ANDROID)
+                    tmp = mAdapter.listenUsingRfcommWithServiceRecord(NAME_SECURE, UUID_ANDROID_DEVICE);
+                else
+                    tmp = mAdapter.listenUsingRfcommWithServiceRecord(NAME_SECURE, UUID_OTHER_DEVICE);
             } catch (IOException e) {
                 try {
                     throw new SocketException(context, "error-AcceptThread", e);
                 } catch (SocketException e1) {
                     e1.printStackTrace();
-                    Log.e("soketException","error-AcceptThread");
+                    Log.e("soketException", "error-AcceptThread");
                 }
             }
             mmServerSocket = tmp;
         }
 
         public void run() {
-            setName("AcceptThread" + mSocketType);
+            setName("AcceptThread");
             BluetoothSocket socket = null;
             Log.i(TAG, "run");
-            // Listen to the server socket if we're not connected
+            /**
+             * 如果没有连接，监听服务器套接字
+             */
             while (mState != ChatState.STATE_CONNECTED && isRunning) {
                 try {
-                    // This is a blocking call and will only return on a
-                    // successful connection or an exception
-                    if(mmss())
-                    socket = mmServerSocket.accept();
+                    /**
+                     * 这是一个阻塞调用，只会返回成功的连接或异常
+                     */
+                    if (mmss())
+                        socket = mmServerSocket.accept();
                 } catch (IOException e) {
                     try {
                         throw new SocketException(context, "error-AcceptThread-run1", e);
                     } catch (SocketException e1) {
                         e1.printStackTrace();
-                        Log.e("soketException","error-AcceptThread-run1");
+                        Log.e("soketException", "error-AcceptThread-run1");
                     }
                     break;
                 }
 
-                // If a connection was accepted
+                /**
+                 * 如果一个连接被接受
+                 */
                 if (socket != null) {
                     synchronized (ChatService.this) {
                         switch (mState) {
-                        case ChatState.STATE_LISTEN:
-                        case ChatState.STATE_CONNECTING:
-                            // Situation normal. Start the connected thread.
-                            connected(socket, socket.getRemoteDevice(),
-                                    mSocketType);
-                            break;
-                        case ChatState.STATE_NONE:
-                        case ChatState.STATE_CONNECTED:
-                            // Either not ready or already connected. Terminate new socket.
-                            try {
-                                socket.close();
-                            } catch (IOException e) {
+                            case ChatState.STATE_LISTEN:
+                            case ChatState.STATE_CONNECTING:
+                                /**
+                                 * 正常情况。启动连接的线程
+                                 */
+                                connected(socket, socket.getRemoteDevice());
+                                break;
+                            case ChatState.STATE_NONE:
+                            case ChatState.STATE_CONNECTED:
+                                /**
+                                 * 要么没有准备好，要么已经连接。终止新套接字。
+                                 */
                                 try {
-                                    throw new SocketException(context, "error-AcceptThread-run2", e);
-                                } catch (SocketException e1) {
-                                    e1.printStackTrace();
-                                    Log.e("soketException","error-AcceptThread-run2");
+                                    socket.close();
+                                } catch (IOException e) {
+                                    try {
+                                        throw new SocketException(context, "error-AcceptThread-run2", e);
+                                    } catch (SocketException e1) {
+                                        e1.printStackTrace();
+                                        Log.e("soketException", "error-AcceptThread-run2");
+                                    }
                                 }
-                            }
-                            break;
+                                break;
                         }
                     }
                 }
             }
         }
 
+        /**
+         * 关闭Socket
+         */
         public void cancel() {
             try {
-                    if (mmss()){
-                        mmServerSocket.close();
-                    }
+                if (mmss()) {
+                    mmServerSocket.close();
+                }
                 mmServerSocket = null;
             } catch (IOException e) {
                 try {
                     throw new SocketException(context, "error-cancel", e);
                 } catch (SocketException e1) {
                     e1.printStackTrace();
-                    Log.e("soketException","error-cancel");
+                    Log.e("soketException", "error-cancel");
                 }
             }
         }
 
         public void kill() {
-        	isRunning = false;
+            isRunning = false;
         }
     }
 
 
-    // This thread runs while attempting to make an outgoing connection
-    // with a device. It runs straight through
-    // the connection either succeeds or fails
+    /**
+     * 此线程在试图与设备进行传出连接时运行。它直接通过连接成功或失败
+     */
     private class ConnectThread extends Thread {
         private final BluetoothSocket mmSocket;
         private final BluetoothDevice mmDevice;
-        private String mSocketType;
 
-        private boolean mms(){
-            if(mmSocket==null){
+        private boolean mms() {
+            if (mmSocket == null) {
                 return false;
             }
             return true;
@@ -378,93 +440,95 @@ public class ChatService {
         public ConnectThread(BluetoothDevice device) {
             mmDevice = device;
             BluetoothSocket tmp = null;
-            // Get a BluetoothSocket for a connection with the
-            // given BluetoothDevice
+            /**
+             * 得到一个与给定的蓝牙设备连接BluetoothSocket
+             */
             try {
-            	if(ChatService.this.isAndroid)
-            		tmp = device.createRfcommSocketToServiceRecord(UUID_ANDROID_DEVICE);
-            	else
-            		tmp = device.createRfcommSocketToServiceRecord(UUID_OTHER_DEVICE);
+                if (ChatState.DEVICE_ANDROID)
+                    tmp = device.createRfcommSocketToServiceRecord(UUID_ANDROID_DEVICE);
+                else
+                    tmp = device.createRfcommSocketToServiceRecord(UUID_OTHER_DEVICE);
             } catch (IOException e) {
                 try {
                     throw new SocketException(context, "error-ConnectThread", e);
                 } catch (SocketException e1) {
                     e1.printStackTrace();
-                    Log.e("soketException","error-ConnectThread");
+                    Log.e("soketException", "error-ConnectThread");
                 }
             }
             mmSocket = tmp;
         }
 
         public void run() {
-            // Always cancel discovery because it will slow down a connection
+            /**
+             * 关闭蓝牙扫描，因为它会减慢连接速度
+             */
             mAdapter.cancelDiscovery();
-
-            // Make a connection to the BluetoothSocket
+            /**
+             * 连接BluetoothSocket
+             */
             try {
-                // This is a blocking call and will only return on a
-                // successful connection or an exception
-                if(mms())
-                mmSocket.connect();
+                /**
+                 * 这是一个阻塞调用，只会返回成功的连接或异常
+                 */
+                if (mms())
+                    mmSocket.connect();
             } catch (IOException e) {
-                // Close the socket
-                try {
-                    if(mms())
-                    mmSocket.close();
-                } catch (IOException e2) {
-                    try {
-                        throw new SocketException(context, "error-ConnectThread-run1", e);
-                    } catch (SocketException e1) {
-                        e1.printStackTrace();
-                        Log.e("soketException","error-ConnectThread-run1");
-                    }
-                }
+                cancel();
                 connectionFailed();
                 return;
             }
 
-            // Reset the ConnectThread because we're done
+            /**
+             * 用完复位 ConnectThread
+             */
             synchronized (ChatService.this) {
                 mConnectThread = null;
             }
-
-            // Start the connected thread
-            connected(mmSocket, mmDevice, mSocketType);
+            connected(mmSocket, mmDevice);
         }
 
+        /**
+         * 关闭Socket
+         */
         public void cancel() {
             try {
-                if(mms())
-                mmSocket.close();
+                if (mms())
+                    mmSocket.close();
             } catch (IOException e) {
                 try {
                     throw new SocketException(context, "error-cancel", e);
                 } catch (SocketException e1) {
                     e1.printStackTrace();
-                    Log.e("soketException","error-cancel");
+                    Log.e("soketException", "error-cancel");
                 }
             }
         }
     }
 
-    // This thread runs during a connection with a remote device.
-    // It handles all incoming and outgoing transmissions.
+    /**
+     * 此线程在与远程设备连接期间运行。它处理所有传入和传出的传输
+     */
     private class ConnectedThread extends Thread {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
-        private boolean mms(){
-            if(mmSocket==null){
+
+        private boolean mms() {
+            if (mmSocket == null) {
                 return false;
             }
             return true;
         }
-        public ConnectedThread(BluetoothSocket socket, String socketType) {
+
+        public ConnectedThread(BluetoothSocket socket) {
             mmSocket = socket;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
             Log.i(TAG, "ConnectedThread");
-            // Get the BluetoothSocket input and output streams
+            /**
+             * 得到BluetoothSocket的输入和输出流
+             */
             try {
                 tmpIn = socket.getInputStream();
                 tmpOut = socket.getOutputStream();
@@ -473,86 +537,91 @@ public class ChatService {
                     throw new SocketException(context, "error-ConnectedThread", e);
                 } catch (SocketException e1) {
                     e1.printStackTrace();
-                    Log.e("soketException","error-ConnectedThread");
+                    Log.e("soketException", "error-ConnectedThread");
                 }
             }
 
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
-            Log.i(TAG, "ConnectedThread mmInStream="+mmInStream);
-            Log.i(TAG, "ConnectedThread mmOutStream="+mmOutStream);
+            Log.i(TAG, "ConnectedThread mmInStream=" + mmInStream);
+            Log.i(TAG, "ConnectedThread mmOutStream=" + mmOutStream);
         }
 
         public void run() {
             byte[] buffer;
             ArrayList<Integer> arr_byte = new ArrayList<Integer>();
-            int before=0;
-            // Keep listening to the InputStream while connected
+            int before = 0;
+            /**
+             * 循环读取输入流
+             */
             while (true) {
                 try {
-                	int data = mmInStream.read();
-                		if(data == 0x0D && before == 0x0A) {
-                		buffer = new byte[arr_byte.size()];
-                		for(int i = 0 ; i < buffer.length; i++) {
-                			buffer[i] = arr_byte.get(i).byteValue();
-                		}
-                		Log.i(TAG, "run arr_byte="+arr_byte);
-                		Log.i(TAG, "run arr_byte.size()="+arr_byte.size());
-                		Log.i(TAG, "run buffer="+buffer);
-                		Log.i(TAG, "run buffer="+buffer.length);
+                    int data = mmInStream.read();
+                    if (data == 0x0D && before == 0x0A) {
+                        buffer = new byte[arr_byte.size()];
+                        for (int i = 0; i < buffer.length; i++) {
+                            buffer[i] = arr_byte.get(i).byteValue();
+                        }
+                        Log.i(TAG, "run arr_byte=" + arr_byte);
+                        Log.i(TAG, "run arr_byte.size()=" + arr_byte.size());
+                        Log.i(TAG, "run buffer=" + buffer);
+                        Log.i(TAG, "run buffer=" + buffer.length);
                         mHandler.obtainMessage(ChatState.MESSAGE_READ
-                        		, buffer.length, -1, buffer).sendToTarget();
+                                , buffer.length, -1, buffer).sendToTarget();
                         arr_byte = new ArrayList<Integer>();
-                	} else {
-                    	arr_byte.add(data);                 
-                	}
-                	before=data;
+                    } else {
+                        arr_byte.add(data);
+                    }
+                    before = data;
                 } catch (IOException e) {
-                    connectionLost();
-                    // Start the service over to restart listening mode
-                    ChatService.this.start(ChatService.this.isAndroid);
+                    connectionFailed();
                     break;
                 }
             }
         }
 
-        // Write to the connected OutStream.
-        // @param buffer  The bytes to write
+        /**
+         * 写入输出流
+         *
+         * @param buffer
+         */
         public void write(byte[] buffer) {
-        	Log.i(TAG, "write buffer="+buffer);
-        	Log.i(TAG, "write buffer.length="+buffer.length);
+            Log.i(TAG, "write buffer=" + buffer);
+            Log.i(TAG, "write buffer.length=" + buffer.length);
             try {
-            	byte[] buffer2 = new byte[buffer.length + 2];
-            	for(int i = 0 ; i < buffer.length ; i++) 
-            		buffer2[i] = buffer[i];
-            	buffer2[buffer2.length - 2] = 0x0A;
-            	buffer2[buffer2.length - 1] = 0x0D;
-            	Log.i(TAG, "write buffer2.length="+buffer2.length);
+                byte[] buffer2 = new byte[buffer.length + 2];
+                for (int i = 0; i < buffer.length; i++)
+                    buffer2[i] = buffer[i];
+                buffer2[buffer2.length - 2] = 0x0A;
+                buffer2[buffer2.length - 1] = 0x0D;
+                Log.i(TAG, "write buffer2.length=" + buffer2.length);
                 mmOutStream.write(buffer2);
-                Log.i(TAG, "write mmOutStream="+mmOutStream);
-                // Share the sent message back to the UI Activity
+                Log.i(TAG, "write mmOutStream=" + mmOutStream);
                 mHandler.obtainMessage(ChatState.MESSAGE_WRITE
-                		, -1, -1, buffer).sendToTarget();
+                        , -1, -1, buffer).sendToTarget();
             } catch (IOException e) {
                 try {
                     throw new SocketException(context, "error-write", e);
                 } catch (SocketException e1) {
                     e1.printStackTrace();
-                    Log.e("soketException","error-write");
+                    Log.e("soketException", "error-write");
                 }
             }
         }
 
+        /**
+         * 关闭Socket
+         */
         public void cancel() {
             try {
-                if(mms())
-                mmSocket.close();
+                if (mms())
+                    mmSocket.close();
             } catch (IOException e) {
                 try {
                     throw new SocketException(context, "error-cancel", e);
                 } catch (SocketException e1) {
                     e1.printStackTrace();
-                    Log.e("soketException","error-cancel");
+                    Log.e("soketException", "error-cancel");
                 }
             }
         }

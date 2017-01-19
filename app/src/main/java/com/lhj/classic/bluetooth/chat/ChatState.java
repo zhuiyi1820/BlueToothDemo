@@ -16,6 +16,7 @@
 
 
 package com.lhj.classic.bluetooth.chat;
+
 /**
  * ┴┬┴┬／￣＼＿／￣＼
  * ┬┴┬┴▏　　▏▔▔▔▔＼ 这
@@ -37,39 +38,67 @@ package com.lhj.classic.bluetooth.chat;
  * ┴┬┴┬┴┬┴ ＼＿＿＿＼　　　　 ﹨／▔＼﹨／▔＼ ╃天天开心╃
  * ▲△▲▲╓╥╥╥╥╥╥╥╥＼　　 ∕　 ／▔﹨　／▔
  * 　＊＊＊╠╬╬╬╬╬╬╬╬＊﹨　　／　　／／ ╃事事顺心╃整和不错
- * <p>
+ * <p/>
  * 作者：linhongjie
  * 时间：2017/1/9 15:26
- * 描述：蓝牙聊天状态常量
+ * 描述：蓝牙聊天状态常量等
  */
 public class ChatState {
-    // Constants that indicate the current connection state
-    public static final int STATE_NONE = 0;        // we're doing nothing
-    public static final int STATE_LISTEN = 1;        // now listening for incoming connections
-    public static final int STATE_CONNECTING = 2;    // now initiating an outgoing connection
-    public static final int STATE_CONNECTED = 3;    // now connected to a remote device
-    public static final int STATE_NULL = -1;        // now service is null
+    /**
+     * 未连接
+     */
+    public static final int STATE_NONE = 0;
+    /**
+     * 准备连接
+     */
+    public static final int STATE_LISTEN = 1;
+    /**
+     * 连接中
+     */
+    public static final int STATE_CONNECTING = 2;
+    /**
+     * 已连接
+     */
+    public static final int STATE_CONNECTED = 3;
 
-    // Message types sent from the BluetoothChatService Handler
+    /**
+     * 连接异常
+     */
+    public static final int STATE_NULL = -1;
+
+    /**
+     *
+     */
     public static final int MESSAGE_STATE_CHANGE = 1;
+    /**
+     * 读取
+     */
     public static final int MESSAGE_READ = 2;
+    /**
+     * 写入
+     */
     public static final int MESSAGE_WRITE = 3;
-    public static final int MESSAGE_DEVICE_NAME = 4;
-    public static final int MESSAGE_TOAST = 5;
+    /**
+     * 设备信息
+     */
+    public static final int MESSAGE_DEVICE_INFO = 4;
 
-    // Intent request codes
-    public static final int REQUEST_CONNECT_DEVICE = 384;
-    public static final int REQUEST_ENABLE_BT = 385;
-
-    // Key names received from the BluetoothChatService Handler
+    /**
+     * 设备名
+     */
     public static final String DEVICE_NAME = "device_name";
+    /**
+     * 设备地址
+     */
     public static final String DEVICE_ADDRESS = "device_address";
-    public static final String TOAST = "toast";
 
+    /**
+     * Android设备
+     */
     public static final boolean DEVICE_ANDROID = true;
+    /**
+     * 其他设备(暂无用)
+     */
     public static final boolean DEVICE_OTHER = false;
-
-    // Return Intent extra
-    public static String EXTRA_DEVICE_ADDRESS = "device_address";
 
 }

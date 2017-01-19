@@ -58,7 +58,8 @@ public class ClassicBluetoothActivity extends BaseActivity implements View.OnCli
     ImageView fab;
     ArrayList<BluetoothDevice> mainList = new ArrayList<>();
     ClassicBluetoothAdapter lvAdapter;
-    private boolean flag = false;
+    boolean flag = false;
+    boolean tflag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,8 +138,10 @@ public class ClassicBluetoothActivity extends BaseActivity implements View.OnCli
                     }
                 }
 
-            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {//
-                Toast.makeText(ClassicBluetoothActivity.this, "搜索结束...", Toast.LENGTH_LONG).show();
+            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+                if (!tflag) {
+                    Toast.makeText(ClassicBluetoothActivity.this, "搜索结束...", Toast.LENGTH_LONG).show();
+                }
                 stopAnimation(fab);
             }
             Log.e("BLUE", "size = " + mainList.size());
@@ -147,6 +150,13 @@ public class ClassicBluetoothActivity extends BaseActivity implements View.OnCli
         }
 
     };
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        tflag = false;
+        Log.e("aaaaaa", "onRestart");
+    }
 
     public void onEventMainThread(EventBusEntity eventBusEntity) {
         if (eventBusEntity.getMsg().equals("blue_success")) {
@@ -242,5 +252,6 @@ public class ClassicBluetoothActivity extends BaseActivity implements View.OnCli
         Intent it = new Intent(ClassicBluetoothActivity.this, BlueToothChatActivity.class);
         it.putExtra("device", mainList.get(position));
         startActivity(it);
+        tflag = true;
     }
 }

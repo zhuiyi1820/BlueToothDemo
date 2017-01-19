@@ -27,7 +27,7 @@ import android.widget.Toast;
  * <p/>
  * 作者：linhongjie
  * 时间：2016/12/14 11:33
- * 描述：异常抛出，可以去掉
+ * 描述：异常抛出处理
  */
 public class SocketException extends Exception  {
 

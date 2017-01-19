@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -44,7 +43,7 @@ import de.greenrobot.event.EventBus;
  * ┴┬┴┬┴┬┴ ＼＿＿＿＼　　　　 ﹨／▔＼﹨／▔＼ ╃天天开心╃
  * ▲△▲▲╓╥╥╥╥╥╥╥╥＼　　 ∕　 ／▔﹨　／▔
  * 　＊＊＊╠╬╬╬╬╬╬╬╬＊﹨　　／　　／／ ╃事事顺心╃整和不错
- * <p>
+ * <p/>
  * 作者：linhongjie
  * 时间：2017/1/9 11:20
  * 描述：base基类
@@ -55,6 +54,7 @@ public class BaseActivity extends AppCompatActivity {
     private AnimationSet animset;//动画
     public BluetoothAdapter mBluetoothAdapter;//低功耗蓝牙
     public BluetoothManager bluetoothManager;//低功耗蓝牙管理
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -132,6 +132,7 @@ public class BaseActivity extends AppCompatActivity {
         }
         return true;
     }
+
     /**
      * 打开蓝牙
      */
@@ -145,12 +146,12 @@ public class BaseActivity extends AppCompatActivity {
             return false;
         }
         if (!mBluetoothAdapter.isEnabled()) { // 打开蓝牙   
-                // 设置蓝牙可见性，最多300秒   
+            // 设置蓝牙可见性，最多300秒   
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
             startActivityForResult(intent, 0);
-                return false;
-            }
+            return false;
+        }
         return true;
     }
 

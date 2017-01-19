@@ -94,7 +94,7 @@ public class BlueToothChatActivity extends BaseActivity implements View.OnClickL
      */
     private void initData() {
         device = getIntent().getParcelableExtra("device");
-        bt = new ChatConnect(this);
+        bt = new ChatConnect(this, adapter);
         title.setText(device.getName());
         right_tv.setText("手动连接");
         left_tv.setText("返回");
@@ -198,7 +198,7 @@ public class BlueToothChatActivity extends BaseActivity implements View.OnClickL
         } else {
             if (!bt.isServiceAvailable()) {
                 bt.setupService();
-                bt.startService(ChatState.DEVICE_ANDROID);
+                bt.startService();
             }
         }
     }
