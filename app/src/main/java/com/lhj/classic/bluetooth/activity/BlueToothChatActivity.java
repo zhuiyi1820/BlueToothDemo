@@ -17,10 +17,9 @@ import com.lhj.classic.bluetooth.R;
 import com.lhj.classic.bluetooth.adapter.BluetoothChatAdapter;
 import com.lhj.classic.bluetooth.base.BaseActivity;
 import com.lhj.classic.bluetooth.chat.BluetoothChatListener;
-import com.lhj.classic.bluetooth.chat.ChatConnect;
+import com.lhj.classic.bluetooth.chat.ChatConnectControl;
 import com.lhj.classic.bluetooth.chat.ChatState;
 import com.lhj.classic.bluetooth.model.ChatItemBean;
-import com.lhj.classic.bluetooth.model.EventBusEntity;
 import com.lhj.classic.bluetooth.utils.ClsUtils;
 
 import java.util.ArrayList;
@@ -55,7 +54,7 @@ import java.util.List;
  */
 public class BlueToothChatActivity extends BaseActivity implements View.OnClickListener, BluetoothChatListener {
 
-    ChatConnect bt;
+    ChatConnectControl bt;
     private ListView mListView;
     private EditText mEditText;
     private Button mButton_send;
@@ -157,7 +156,7 @@ public class BlueToothChatActivity extends BaseActivity implements View.OnClickL
      */
     private void initData() {
         device = getIntent().getParcelableExtra("device");
-        bt = new ChatConnect(this, adapter);
+        bt = new ChatConnectControl(this, adapter);
         title.setText(device.getName());
         right_tv.setText("手动连接");
         left_tv.setText("返回");

@@ -250,12 +250,11 @@ public class ChatService {
     }
 
     /**
-     * Write to the ConnectedThread in an unsynchronized manner
+     * 写入
      *
      * @param out
      */
     public void write(byte[] out) {
-        Log.e(TAG, "write out=" + out);
         Log.e(TAG, "write string out=" + Bytes2HexString(out));
         ConnectedThread r;
         synchronized (this) {
@@ -288,7 +287,7 @@ public class ChatService {
     }
 
     /**
-     * 此线程在侦听传入连接时运行。它的行为像一个服务器端客户端。它一直运行到连接被接受（或者直到被取消）
+     * 此线程在侦听传入连接时运行。它的行为像一个服务器端客户端。它一直运行到连接被接收（或者直到被取消）
      */
     private class AcceptThread extends Thread {
         private BluetoothServerSocket mmServerSocket;
@@ -492,6 +491,7 @@ public class ChatService {
 
     /**
      * 此线程在与远程设备连接期间运行。它处理所有传入和传出的传输
+     *
      */
     private class ConnectedThread extends Thread {
         private final BluetoothSocket mmSocket;

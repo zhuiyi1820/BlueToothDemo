@@ -34,8 +34,8 @@ import android.util.Log;
  * 时间：2017/1/9 15:16
  * 描述：蓝牙聊天通信控制
  */
-public class ChatConnect {
-    public static String TAG = "ChatConnect";
+public class ChatConnectControl {
+    public static String TAG = "ChatConnectControl";
     /**
      * 蓝牙会话监听
      */
@@ -65,7 +65,7 @@ public class ChatConnect {
 
     private Context mContext;
 
-    public ChatConnect(Context context, BluetoothAdapter mBluetoothAdapter) {
+    public ChatConnectControl(Context context, BluetoothAdapter mBluetoothAdapter) {
         mContext = context;
         this.mBluetoothAdapter = mBluetoothAdapter;
     }
