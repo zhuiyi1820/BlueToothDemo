@@ -37,20 +37,9 @@ import android.util.Log;
 public class ChatConnect {
     public static String TAG = "ChatConnect";
     /**
-     * 聊天会话消息类型监听
+     * 蓝牙会话监听
      */
-    private BluetoothStateListener mBluetoothStateListener = null;
-
-    /**
-     * 聊天会话消息读取监听
-     */
-    private OnDataReceivedListener mDataReceivedListener = null;
-    /**
-     * 蓝牙会话连接监听
-     */
-    private BluetoothConnectionListener mBluetoothConnectionListener = null;
-
-    private Context mContext;
+    private BluetoothChatListener mBluetoothChatListener = null;
 
     /**
      * 蓝牙默认的适配器
@@ -74,7 +63,7 @@ public class ChatConnect {
      */
     private boolean isConnecting = false;
 
-
+    private Context mContext;
 
     public ChatConnect(Context context, BluetoothAdapter mBluetoothAdapter) {
         mContext = context;
@@ -82,47 +71,10 @@ public class ChatConnect {
     }
 
     /**
-     * 聊天会话消息类型监听
+     * 服务是否启动
+     *
+     * @return
      */
-    public interface BluetoothStateListener {
-        void onServiceStateChanged(int state);
-    }
-
-    /**
-     * 聊天会话消息读取监听
-     */
-    public interface OnDataReceivedListener {
-        void onDataReceived(byte[] data, String message);
-    }
-
-    /**
-     * 蓝牙会话连接监听
-     */
-    public interface BluetoothConnectionListener {
-        /**
-         * 设备连接中
-         *
-         * @param name
-         * @param address
-         */
-        void onDeviceConnected(String name, String address);
-
-        /**
-         * 设备断开连接
-         */
-        void onDeviceDisconnected();
-
-        /**
-         * 设备连接失败
-         */
-        void onDeviceConnectionFailed();
-    }
-
-
-    public boolean isBluetoothEnabled() {
-        return mBluetoothAdapter.isEnabled();
-    }
-
     public boolean isServiceAvailable() {
         return mChatService != null;
     }
@@ -175,7 +127,6 @@ public class ChatConnect {
 
     /**
      * 重启/切换
-     *
      */
     public void setDeviceTarget() {
         stopService();
@@ -218,6 +169,16 @@ public class ChatConnect {
         }
     }
 
+
+    /**
+     * 配置监听
+     *
+     * @param listener
+     */
+    public void setBluetoothChatListener(BluetoothChatListener listener) {
+        mBluetoothChatListener = listener;
+    }
+
     /**
      * 处理Handler接收的内容
      */
@@ -240,29 +201,29 @@ public class ChatConnect {
                     Log.i(TAG, "MESSAGE_READ readMessage=" + readMessage);
                     Log.i(TAG, "MESSAGE_READ readMessage.length=" + readMessage.length());
                     if (readBuf != null && readBuf.length > 0) {
-                        if (mDataReceivedListener != null) {
+                        if (mBluetoothChatListener != null) {
                             Log.i(TAG, "MESSAGE_READ onDataReceived");
-                            mDataReceivedListener.onDataReceived(readBuf, readMessage);
+                            mBluetoothChatListener.onDataReceived(readBuf, readMessage);
                         }
                     }
                     break;
                 case ChatState.MESSAGE_DEVICE_INFO:
                     mDeviceName = msg.getData().getString(ChatState.DEVICE_NAME);
                     mDeviceAddress = msg.getData().getString(ChatState.DEVICE_ADDRESS);
-                    if (mBluetoothConnectionListener != null)
-                        mBluetoothConnectionListener.onDeviceConnected(mDeviceName, mDeviceAddress);
+                    if (mBluetoothChatListener != null)
+                        mBluetoothChatListener.onDeviceConnected(mDeviceName, mDeviceAddress);
                     Log.i(TAG, "MESSAGE_DEVICE_NAME" + mDeviceName);
                     Log.i(TAG, "MESSAGE_DEVICE_NAME" + mDeviceAddress);
                     isConnected = true;
                     break;
 
                 case ChatState.MESSAGE_STATE_CHANGE:
-                    Log.i(TAG, "MESSAGE_STATE_CHANGE" + msg.arg1);
-                    if (mBluetoothStateListener != null)
-                        mBluetoothStateListener.onServiceStateChanged(msg.arg1);
+                    Log.i(TAG, "MESSAGE_STATE_CHANGE：" + msg.arg2 + "->" + msg.arg1);
+                    if (mBluetoothChatListener != null)
+                        mBluetoothChatListener.onServiceStateChanged(msg.arg2 + "->" + msg.arg1);
                     if (isConnected && msg.arg1 != ChatState.STATE_CONNECTED) {
-                        if (mBluetoothConnectionListener != null)
-                            mBluetoothConnectionListener.onDeviceDisconnected();
+                        if (mBluetoothChatListener != null)
+                            mBluetoothChatListener.onDeviceDisconnected();
                         isConnected = false;
                         mDeviceName = null;
                         mDeviceAddress = null;
@@ -271,8 +232,8 @@ public class ChatConnect {
                         isConnecting = true;
                     } else if (isConnecting) {
                         if (msg.arg1 != ChatState.STATE_CONNECTED) {
-                            if (mBluetoothConnectionListener != null)
-                                mBluetoothConnectionListener.onDeviceConnectionFailed();
+                            if (mBluetoothChatListener != null)
+                                mBluetoothChatListener.onDeviceConnectionFailed();
                         }
                         isConnecting = false;
                     }
@@ -280,24 +241,5 @@ public class ChatConnect {
             }
         }
     };
-
-
-    public void setBluetoothStateListener(BluetoothStateListener listener) {
-        mBluetoothStateListener = listener;
-    }
-
-    public void setOnDataReceivedListener(OnDataReceivedListener listener) {
-        mDataReceivedListener = listener;
-    }
-
-    public void setBluetoothConnectionListener(BluetoothConnectionListener listener) {
-        mBluetoothConnectionListener = listener;
-    }
-
-
-    public void enable() {
-        mBluetoothAdapter.enable();
-    }
-
 
 }

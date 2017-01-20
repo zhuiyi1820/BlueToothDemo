@@ -17,6 +17,8 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.Toast;
 
+import com.lhj.classic.bluetooth.model.EventBusEntity;
+
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -62,6 +64,9 @@ public class BaseActivity extends AppCompatActivity {
         adapter = BluetoothAdapter.getDefaultAdapter();
     }
 
+    public void onEventMainThread(EventBusEntity ebe) {
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -86,6 +91,15 @@ public class BaseActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+    }
+
+    /**
+     * 蓝牙功能是否开启
+     *
+     * @return
+     */
+    public boolean isBluetoothEnabled() {
+        return mBluetoothAdapter.isEnabled();
     }
 
     /**

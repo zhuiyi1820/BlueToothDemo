@@ -155,7 +155,6 @@ public class ClassicBluetoothActivity extends BaseActivity implements View.OnCli
     protected void onRestart() {
         super.onRestart();
         tflag = false;
-        Log.e("aaaaaa", "onRestart");
     }
 
     public void onEventMainThread(EventBusEntity eventBusEntity) {

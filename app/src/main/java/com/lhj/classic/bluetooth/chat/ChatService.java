@@ -27,15 +27,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.lhj.classic.bluetooth.model.EventBusEntity;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.UUID;
-
-import de.greenrobot.event.EventBus;
 
 /**
  * ┴┬┴┬／￣＼＿／￣＼
@@ -80,7 +76,6 @@ public class ChatService {
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
     private int mState;
-    private final EventBusEntity ebe;
     Context context;
 
     /**
@@ -95,7 +90,6 @@ public class ChatService {
         mState = ChatState.STATE_NONE;
         mHandler = handler;
         this.context = context;
-        ebe = new EventBusEntity();
     }
 
 
@@ -106,14 +100,9 @@ public class ChatService {
      */
     private synchronized void setState(int state) {
         Log.d(TAG, "setState() " + mState + " -> " + state);
-        ebe.setMsg("connectstate");
-        ebe.setOstate(mState);
-        ebe.setNstate(state);
-        ebe.setData(mState + "->" + state);
-        EventBus.getDefault().post(ebe);
+        mHandler.obtainMessage(ChatState.MESSAGE_STATE_CHANGE, state, mState).sendToTarget();
         mState = state;
-        //将新状态交给处理程序，以便UI活动可以更新
-        mHandler.obtainMessage(ChatState.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
+
     }
 
     /**
@@ -186,11 +175,6 @@ public class ChatService {
         setState(ChatState.STATE_CONNECTING);
     }
 
-    /**
-     * Start the ConnectedThread to begin managing a Bluetooth connection
-     * @param socket  The BluetoothSocket on which the connection was made
-     * @param device  The BluetoothDevice that has been connected
-     */
     /**
      * 开始connectedthread开始管理蓝牙连接
      *

@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothDevice;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 import com.lhj.classic.bluetooth.R;
 import com.lhj.classic.bluetooth.adapter.BluetoothChatAdapter;
 import com.lhj.classic.bluetooth.base.BaseActivity;
+import com.lhj.classic.bluetooth.chat.BluetoothChatListener;
 import com.lhj.classic.bluetooth.chat.ChatConnect;
 import com.lhj.classic.bluetooth.chat.ChatState;
 import com.lhj.classic.bluetooth.model.ChatItemBean;
@@ -51,7 +53,7 @@ import java.util.List;
  * 时间：2017/1/6 16:41
  * 描述：蓝牙聊天
  */
-public class BlueToothChatActivity extends BaseActivity implements View.OnClickListener, ChatConnect.OnDataReceivedListener {
+public class BlueToothChatActivity extends BaseActivity implements View.OnClickListener, BluetoothChatListener {
 
     ChatConnect bt;
     private ListView mListView;
@@ -79,13 +81,74 @@ public class BlueToothChatActivity extends BaseActivity implements View.OnClickL
         initListener();
     }
 
+    @Override
+    public void onDeviceConnected(String name, String address) {
+        Log.e("initListener", name + "-----" + address);
+    }
+
+    @Override
+    public void onDeviceDisconnected() {
+        Log.e("initListener", "onDeviceDisconnected");
+    }
+
+    @Override
+    public void onDeviceConnectionFailed() {
+        Log.e("initListener", "onDeviceConnectionFailed");
+        Toast.makeText(BlueToothChatActivity.this, "连接失败", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onServiceStateChanged(String state) {
+        Log.e("onServiceStateChanged", state);
+        if (state.equals("1->2")) {
+            Toast.makeText(BlueToothChatActivity.this, "正在连接", Toast.LENGTH_SHORT).show();
+        }
+        if (state.equals("2->3")) {
+            Toast.makeText(BlueToothChatActivity.this, "连接成功", Toast.LENGTH_SHORT).show();
+        }
+        if (state.equals("1->3")) {
+            Toast.makeText(BlueToothChatActivity.this, "对方与你连接", Toast.LENGTH_SHORT).show();
+        }
+        if (state.equals("3->1")) {
+            Toast.makeText(BlueToothChatActivity.this, "对方断开连接", Toast.LENGTH_SHORT).show();
+        }
+        if (state.equals("3->0")) {
+            Toast.makeText(BlueToothChatActivity.this, "主动断开连接", Toast.LENGTH_SHORT).show();
+        }
+        if (state.equals("1->0")) {
+            Toast.makeText(BlueToothChatActivity.this, "退出连接", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * 接受对方消息
+     *
+     * @param data
+     * @param message
+     */
+    @Override
+    public void onDataReceived(byte[] data, String message) {
+
+        if (!message.equals("")) {
+            chatIn = new ChatItemBean();
+            chatIn.setType(0);
+            chatIn.setIcon(BitmapFactory.decodeResource(getResources(),
+                    R.mipmap.in_icon));
+            chatIn.setText(message);
+            mdata.add(chatIn);
+            mAdapter.notifyDataSetChanged();
+            mListView.setSelection(mdata.size() - 1);
+        }
+
+    }
+
     /**
      * 初始化监听事件
      */
     private void initListener() {
         left.setOnClickListener(this);
         right.setOnClickListener(this);
-        bt.setOnDataReceivedListener(this);
+        bt.setBluetoothChatListener(this);
         mButton_send.setOnClickListener(this);
     }
 
@@ -115,36 +178,6 @@ public class BlueToothChatActivity extends BaseActivity implements View.OnClickL
         mListView = (ListView) findViewById(R.id.listView_chat);
         mEditText = (EditText) findViewById(R.id.mEditText);
         mButton_send = (Button) findViewById(R.id.mButton_send);
-    }
-
-
-    /**
-     * eventbus回调
-     *
-     * @param ebe
-     */
-    public void onEventMainThread(EventBusEntity ebe) {
-        if (ebe.getMsg().equals("connectstate") && !ebe.getData().equals("")) {
-            if (ebe.getData().equals("1->2")) {
-                Toast.makeText(this, "正在连接", Toast.LENGTH_SHORT).show();
-            }
-            if (ebe.getData().equals("2->3")) {
-                Toast.makeText(this, "连接成功", Toast.LENGTH_SHORT).show();
-            }
-            if (ebe.getData().equals("1->3")) {
-                Toast.makeText(this, "对方与你连接", Toast.LENGTH_SHORT).show();
-            }
-            if (ebe.getData().equals("3->1")) {
-                Toast.makeText(this, "对方断开连接", Toast.LENGTH_SHORT).show();
-            }
-            if (ebe.getData().equals("3->0")) {
-                Toast.makeText(this, "主动断开连接", Toast.LENGTH_SHORT).show();
-            }
-            if (ebe.getData().equals("1->0")) {
-                Toast.makeText(this, "退出连接", Toast.LENGTH_SHORT).show();
-            }
-//            Toast.makeText(this,ebe.getOstate() + " ---> " + ebe.getNstate(),Toast.LENGTH_SHORT).show();
-        }
     }
 
     /**
@@ -193,13 +226,9 @@ public class BlueToothChatActivity extends BaseActivity implements View.OnClickL
     @Override
     protected void onStart() {
         super.onStart();
-        if (!bt.isBluetoothEnabled()) {
-            bt.enable();
-        } else {
-            if (!bt.isServiceAvailable()) {
-                bt.setupService();
-                bt.startService();
-            }
+        if (!bt.isServiceAvailable()) {
+            bt.setupService();
+            bt.startService();
         }
     }
 
@@ -231,25 +260,5 @@ public class BlueToothChatActivity extends BaseActivity implements View.OnClickL
         }
     }
 
-    /**
-     * 接受对方消息
-     *
-     * @param data
-     * @param message
-     */
-    @Override
-    public void onDataReceived(byte[] data, String message) {
 
-        if (!message.equals("")) {
-            chatIn = new ChatItemBean();
-            chatIn.setType(0);
-            chatIn.setIcon(BitmapFactory.decodeResource(getResources(),
-                    R.mipmap.in_icon));
-            chatIn.setText(message);
-            mdata.add(chatIn);
-            mAdapter.notifyDataSetChanged();
-            mListView.setSelection(mdata.size() - 1);
-        }
-
-    }
 }
