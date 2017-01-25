@@ -97,7 +97,6 @@ public class BleGattActivity extends BaseActivity implements View.OnClickListene
      * 初始化GATT配置
      */
     public void initDataAndListener() {
-        Log.e(TAG,"aaaa");
         device = getIntent().getParcelableExtra("device");
         base_left_rl.setOnClickListener(this);
         base_right_rl.setOnClickListener(this);
