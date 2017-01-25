@@ -7,7 +7,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.lhj.classic.bluetooth.R;
-import com.lhj.classic.bluetooth.model.IbeaconBean;
+import com.lhj.classic.bluetooth.model.BleBuletoothDeviceBean;
 
 import java.util.ArrayList;
 
@@ -32,25 +32,35 @@ import java.util.ArrayList;
  * ┴┬┴┬┴┬┴ ＼＿＿＿＼　　　　 ﹨／▔＼﹨／▔＼ ╃天天开心╃
  * ▲△▲▲╓╥╥╥╥╥╥╥╥＼　　 ∕　 ／▔﹨　／▔
  * 　＊＊＊╠╬╬╬╬╬╬╬╬＊﹨　　／　　／／ ╃事事顺心╃整和不错
- * <p/>
+ * <p>
  * 作者：linhongjie
  * 时间：2016/10/31 16:08
  * 描述：扫描蓝牙适配器
  */
 public class BleBuletoothAdapter extends BaseAdapter {
-    private ArrayList<IbeaconBean> mainList;
+    private ArrayList<BleBuletoothDeviceBean> mainList;
     Context context;
     BleSignListener sl;
 
-    public BleBuletoothAdapter(Context context, ArrayList<IbeaconBean> mainList, BleSignListener sl) {
+    public BleBuletoothAdapter(Context context, ArrayList<BleBuletoothDeviceBean> mainList, BleSignListener sl) {
         this.context = context;
         this.mainList = mainList;
         this.sl = sl;
     }
 
     @Override
+    public int getItemViewType(int position) {
+        return mainList.get(position).getType();
+    }
+
+    @Override
     public int getCount() {
         return mainList.size();
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return 2;
     }
 
     @Override
@@ -67,38 +77,54 @@ public class BleBuletoothAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder = null;
         if (convertView == null) {
-            convertView = convertView.inflate(context, R.layout.item_ble, null);
-            holder = new ViewHolder();
-            holder.uuid = (TextView) convertView.findViewById(R.id.uuid);//厂商识别号
-            holder.major = (TextView) convertView.findViewById(R.id.major);//相当于群组号，同一个组里Beacon有相同的Major
-            holder.minor = (TextView) convertView.findViewById(R.id.minor);//相当于识别群组里单个的Beacon
+
+            if (getItemViewType(position) == 1) {
+                convertView = convertView.inflate(context, R.layout.item_ibeacon, null);
+                holder = new ViewHolder();
+                holder.uuid = (TextView) convertView.findViewById(R.id.uuid);//厂商识别号
+                holder.major = (TextView) convertView.findViewById(R.id.major);//相当于群组号，同一个组里Beacon有相同的Major
+                holder.minor = (TextView) convertView.findViewById(R.id.minor);//相当于识别群组里单个的Beacon
 //            UUID+Major+Minor就构成了一个Beacon的识别号，有点类似于网络中的IP地址。TX Power用于测距，iBeacon目前只定义了大概的3个粗略级别：
 //            非常近（Immediate）: 大概10厘米内
 //            近（Near）:1米内
 //            远（Far）:1米外
-            holder.txPower = (TextView) convertView.findViewById(R.id.txPower);//用于测量设备离Beacon的距离
-            holder.mac = (TextView) convertView.findViewById(R.id.mac);//mac地址
-            holder.distance = (TextView) convertView.findViewById(R.id.distance);//距离
-            holder.rssi = (TextView) convertView.findViewById(R.id.rssi);//信号强度
-            holder.item_btn = (TextView) convertView.findViewById(R.id.item_btn);
+                holder.txPower = (TextView) convertView.findViewById(R.id.txPower);//用于测量设备离Beacon的距离
+                holder.mac = (TextView) convertView.findViewById(R.id.mac);//mac地址
+                holder.distance = (TextView) convertView.findViewById(R.id.distance);//距离
+                holder.rssi = (TextView) convertView.findViewById(R.id.rssi);//信号强度
+                holder.item_btn = (TextView) convertView.findViewById(R.id.item_btn);
+            } else {
+                convertView = convertView.inflate(context, R.layout.item_device, null);
+                holder = new ViewHolder();
+                holder.uuid = (TextView) convertView.findViewById(R.id.device_name);
+                holder.mac = (TextView) convertView.findViewById(R.id.device_address);
+            }
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        final IbeaconBean device = mainList.get(position);
-        holder.uuid.setText(device.getProximityUuid());
-        holder.major.setText(device.getMajor() + "");
-        holder.minor.setText(device.getMinor() + "");
-        holder.mac.setText(device.getBluetoothAddress());
-        holder.distance.setText(device.getDistance() + "米");
-        holder.rssi.setText(device.getRssi() + "");
-        holder.txPower.setText(device.getTxPower() + "");
-        holder.item_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sl.signOperation(device);
-            }
-        });
+        final BleBuletoothDeviceBean device = mainList.get(position);
+        if (device.getType() == 1) {//是ibeacon
+            holder.uuid.setText(device.getProximityUuid());
+            holder.major.setText(device.getMajor() + "");
+            holder.minor.setText(device.getMinor() + "");
+            holder.mac.setText(device.getDevice().getAddress());
+            holder.distance.setText(device.getDistance() + "米");
+            holder.rssi.setText(device.getRssi() + "");
+            holder.txPower.setText(device.getTxPower() + "");
+        } else {
+            holder.uuid.setText(device.getDevice().getName());
+            holder.mac.setText(device.getDevice().getAddress());
+        }
+        if(holder.item_btn!=null){
+            holder.item_btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    sl.signOperation(device);
+                }
+            });
+        }
+
         return convertView;
     }
 
@@ -115,7 +141,7 @@ public class BleBuletoothAdapter extends BaseAdapter {
 
     public interface BleSignListener {
 
-        void signOperation(IbeaconBean device);
+        void signOperation(BleBuletoothDeviceBean device);
 
     }
 }

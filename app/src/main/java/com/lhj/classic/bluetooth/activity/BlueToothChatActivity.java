@@ -47,13 +47,13 @@ import java.util.List;
  * ┴┬┴┬┴┬┴ ＼＿＿＿＼　　　　 ﹨／▔＼﹨／▔＼ ╃天天开心╃
  * ▲△▲▲╓╥╥╥╥╥╥╥╥＼　　 ∕　 ／▔﹨　／▔
  * 　＊＊＊╠╬╬╬╬╬╬╬╬＊﹨　　／　　／／ ╃事事顺心╃整和不错
- * <p/>
+ * <p>
  * 作者：linhongjie
  * 时间：2017/1/6 16:41
  * 描述：蓝牙聊天
  */
 public class BlueToothChatActivity extends BaseActivity implements View.OnClickListener, BluetoothChatListener {
-
+    private final static String TAG = BlueToothChatActivity.class.getSimpleName();
     ChatConnectControl bt;
     private ListView mListView;
     private EditText mEditText;
@@ -74,7 +74,7 @@ public class BlueToothChatActivity extends BaseActivity implements View.OnClickL
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_blue_tooth_chat);
+        setContentView(R.layout.activity_bluetooth_chat);
         initView();
         initData();
         initListener();
@@ -82,7 +82,7 @@ public class BlueToothChatActivity extends BaseActivity implements View.OnClickL
 
     @Override
     public void onDeviceConnected(String name, String address) {
-        Log.e("initListener", name + "-----" + address);
+        Log.e(TAG, name + "-----" + address);
     }
 
     @Override
@@ -92,13 +92,13 @@ public class BlueToothChatActivity extends BaseActivity implements View.OnClickL
 
     @Override
     public void onDeviceConnectionFailed() {
-        Log.e("initListener", "onDeviceConnectionFailed");
+        Log.e(TAG, "onDeviceConnectionFailed");
         Toast.makeText(BlueToothChatActivity.this, "连接失败", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onServiceStateChanged(String state) {
-        Log.e("onServiceStateChanged", state);
+        Log.e(TAG, state);
         if (state.equals("1->2")) {
             Toast.makeText(BlueToothChatActivity.this, "正在连接", Toast.LENGTH_SHORT).show();
         }

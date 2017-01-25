@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.lhj.classic.bluetooth">
+
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-   <!-- 这里的true标示手机如果不支持低功耗蓝牙就直接不让安装，如果你不想这样的话，可以写false-->
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <!-- 这里的true标示手机如果不支持低功耗蓝牙就直接不让安装，如果你不想这样的话，可以写false-->
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="false" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -22,11 +25,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.BleBuletoothActivity"/>
-        <activity android:name=".activity.ClassicBluetoothActivity"/>
-        <activity android:name=".activity.BlueToothChatActivity"/>
-        <receiver
-            android:name=".receiver.BuletoothPairingReceiver">
+        <activity android:name=".activity.BleGattActivity" />
+        <activity android:name=".activity.BleBuletoothActivity" />
+        <activity android:name=".activity.ClassicBluetoothActivity" />
+        <activity android:name=".activity.BlueToothChatActivity" />
+
+        <receiver android:name=".receiver.BuletoothPairingReceiver">
             <intent-filter android:priority="1000">
                 <action android:name="android.bluetooth.device.action.PAIRING_REQUEST" />
             </intent-filter>

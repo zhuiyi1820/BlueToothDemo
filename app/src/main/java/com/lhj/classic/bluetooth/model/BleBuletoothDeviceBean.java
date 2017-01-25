@@ -23,29 +23,20 @@ import android.bluetooth.BluetoothDevice;
  * ┴┬┴┬┴┬┴ ＼＿＿＿＼　　　　 ﹨／▔＼﹨／▔＼ ╃天天开心╃
  * ▲△▲▲╓╥╥╥╥╥╥╥╥＼　　 ∕　 ／▔﹨　／▔
  * 　＊＊＊╠╬╬╬╬╬╬╬╬＊﹨　　／　　／／ ╃事事顺心╃整和不错
- * <p/>
+ * <p>
  * 作者：linhongjie
- * 时间：2017/1/10 15:04
- * 描述：ibeacon实体类
+ * 时间：2017/1/23 11:26
+ * 描述：
  */
-public class IbeaconBean {
-    private String name;
+public class BleBuletoothDeviceBean {
     private int major;
     private int minor;
-    private String proximityUuid;
-    private String bluetoothAddress;
+    private String proximityUuid = "";
     private int txPower;
     private int rssi;
-    private String distance;
+    private String distance = "";
     private BluetoothDevice device;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+    private int type;
 
     public int getMajor() {
         return major;
@@ -69,14 +60,6 @@ public class IbeaconBean {
 
     public void setProximityUuid(String proximityUuid) {
         this.proximityUuid = proximityUuid;
-    }
-
-    public String getBluetoothAddress() {
-        return bluetoothAddress;
-    }
-
-    public void setBluetoothAddress(String bluetoothAddress) {
-        this.bluetoothAddress = bluetoothAddress;
     }
 
     public int getTxPower() {
@@ -109,5 +92,13 @@ public class IbeaconBean {
 
     public void setDevice(BluetoothDevice device) {
         this.device = device;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }

@@ -6,6 +6,7 @@
     android:paddingTop="8dp">
 
     <ImageView
+        android:layout_centerVertical="true"
         android:id="@+id/item_left"
         android:layout_width="40dp"
         android:layout_height="40dp"
@@ -203,7 +204,7 @@
             android:layout_marginRight="10dp"
             android:background="@color/colorAccent"
             android:padding="5dp"
-            android:text="业务"
+            android:text="连接"
             android:textColor="@color/white"
             android:textSize="13sp" />
 

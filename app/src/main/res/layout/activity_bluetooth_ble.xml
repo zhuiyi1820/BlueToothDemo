@@ -10,9 +10,10 @@
 
     <include
         android:id="@+id/scro_content"
-        layout="@layout/base_blue_tooth_content"
+        layout="@layout/base_bluetooth_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/scro_head" />
+        android:layout_below="@id/scro_head"
+        android:layout_marginBottom="50dp" />
 
 </RelativeLayout>

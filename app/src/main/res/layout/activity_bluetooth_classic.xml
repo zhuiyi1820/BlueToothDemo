@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/scro_head"
+        layout="@layout/base_topbar" />
+
+    <include
+        android:id="@+id/scro_content"
+        layout="@layout/base_bluetooth_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/scro_head" />
+
+</RelativeLayout>

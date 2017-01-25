@@ -47,13 +47,13 @@ import java.util.ArrayList;
  * ┴┬┴┬┴┬┴ ＼＿＿＿＼　　　　 ﹨／▔＼﹨／▔＼ ╃天天开心╃
  * ▲△▲▲╓╥╥╥╥╥╥╥╥＼　　 ∕　 ／▔﹨　／▔
  * 　＊＊＊╠╬╬╬╬╬╬╬╬＊﹨　　／　　／／ ╃事事顺心╃整和不错
- * <p/>
+ * <p>
  * 作者：linhongjie
  * 时间：2016/11/1 09:48
  * 描述：
  */
 public class ClassicBluetoothActivity extends BaseActivity implements View.OnClickListener, ClassicBluetoothAdapter.SignListener, AdapterView.OnItemClickListener {
-
+    private final static String TAG = ClassicBluetoothActivity.class.getSimpleName();
     Snackbar snackbar;
     ImageView fab;
     ArrayList<BluetoothDevice> mainList = new ArrayList<>();
@@ -64,7 +64,7 @@ public class ClassicBluetoothActivity extends BaseActivity implements View.OnCli
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_classic_bluetooth);
+        setContentView(R.layout.activity_bluetooth_classic);
         initView();
         initReceiver();
     }
@@ -144,7 +144,7 @@ public class ClassicBluetoothActivity extends BaseActivity implements View.OnCli
                 }
                 stopAnimation(fab);
             }
-            Log.e("BLUE", "size = " + mainList.size());
+            Log.e(TAG, "size = " + mainList.size());
 
             lvAdapter.notifyDataSetChanged();
         }
@@ -160,7 +160,7 @@ public class ClassicBluetoothActivity extends BaseActivity implements View.OnCli
     public void onEventMainThread(EventBusEntity eventBusEntity) {
         if (eventBusEntity.getMsg().equals("blue_success")) {
             if (!eventBusEntity.getAddress().equals("") && eventBusEntity.isResult()) {
-                Log.e("blue:", "blue_success");
+                Log.e(TAG, "blue_success");
                 Toast.makeText(this, "配对" + eventBusEntity.getName() + "成功", Toast.LENGTH_LONG).show();
                 lvAdapter.notifyDataSetChanged();
             }
