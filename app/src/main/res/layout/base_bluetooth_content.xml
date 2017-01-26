@@ -6,11 +6,11 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <com.lhj.classic.bluetooth.view.MyListView
+    <com.lhj.classic.bluetooth.cls.view.MyListView
         android:id="@+id/main_lv"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    </com.lhj.classic.bluetooth.view.MyListView>
+    </com.lhj.classic.bluetooth.cls.view.MyListView>
 
 </android.support.v4.widget.NestedScrollView>

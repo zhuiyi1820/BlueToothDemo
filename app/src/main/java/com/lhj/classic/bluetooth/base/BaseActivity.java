@@ -18,7 +18,7 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.Toast;
 
-import com.lhj.classic.bluetooth.model.EventBusEntity;
+import com.lhj.classic.bluetooth.cls.model.EventBusEntity;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -163,12 +163,12 @@ public class BaseActivity extends AppCompatActivity {
      * 打开蓝牙
      */
     public boolean openBleBluetooth() {
-        if (mBluetoothAdapter == null) {
-            Toast.makeText(this, "该设备不支持蓝牙", Toast.LENGTH_LONG).show();
-            return false;
-        }
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(this, "该设备不支持蓝牙4.0", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (mBluetoothAdapter == null) {
+            Toast.makeText(this, "该设备不支持蓝牙", Toast.LENGTH_LONG).show();
             return false;
         }
         if (!mBluetoothAdapter.isEnabled()) { // 打开蓝牙   
