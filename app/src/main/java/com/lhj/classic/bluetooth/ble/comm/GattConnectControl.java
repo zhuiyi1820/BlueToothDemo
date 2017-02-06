@@ -62,6 +62,7 @@ public class GattConnectControl {
     private BluetoothAdapter mBluetoothAdapter;
     private String mBluetoothDeviceAddress = "";
     private BluetoothGatt mBluetoothGatt;
+    private MyGattListener mgl;
     private Context mContext;
 
     public GattConnectControl(Context mContext, BluetoothAdapter mBluetoothAdapter) {
@@ -69,72 +70,8 @@ public class GattConnectControl {
         this.mBluetoothAdapter = mBluetoothAdapter;
     }
 
-    /**
-     * 连接
-     */
-    public interface OnConnectListener {
-        void onConnect(BluetoothGatt gatt);
-    }
-
-    /**
-     * 断开
-     */
-    public interface OnDisconnectListener {
-        void onDisconnect(BluetoothGatt gatt);
-    }
-
-    /**
-     * BLE终端的Service监听
-     */
-    public interface OnServiceDiscoverListener {
-        void onServiceDiscover(BluetoothGatt gatt);
-    }
-
-    /**
-     * BLE终端数据交互监听
-     */
-    public interface OnDataAvailableListener {
-        /**
-         * 读
-         *
-         * @param gatt
-         * @param characteristic
-         * @param status
-         */
-        void onCharacteristicRead(BluetoothGatt gatt,
-                                  BluetoothGattCharacteristic characteristic,
-                                  int status);
-
-        /**
-         * 写
-         *
-         * @param gatt
-         * @param characteristic
-         */
-        void onCharacteristicWrite(BluetoothGatt gatt,
-                                   BluetoothGattCharacteristic characteristic);
-    }
-
-    private OnConnectListener mOnConnectListener;
-    private OnDisconnectListener mOnDisconnectListener;
-    private OnServiceDiscoverListener mOnServiceDiscoverListener;
-    private OnDataAvailableListener mOnDataAvailableListener;
-
-
-    public void setOnConnectListener(OnConnectListener l) {
-        mOnConnectListener = l;
-    }
-
-    public void setOnDisconnectListener(OnDisconnectListener l) {
-        mOnDisconnectListener = l;
-    }
-
-    public void setOnServiceDiscoverListener(OnServiceDiscoverListener l) {
-        mOnServiceDiscoverListener = l;
-    }
-
-    public void setOnDataAvailableListener(OnDataAvailableListener l) {
-        mOnDataAvailableListener = l;
+    public void setMyGattListener(MyGattListener mgl) {
+        this.mgl = mgl;
     }
 
     /**
@@ -144,21 +81,21 @@ public class GattConnectControl {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {//成功连接后发现服务的尝试
-                if (mOnConnectListener != null)
-                    mOnConnectListener.onConnect(gatt);
+                if (mgl != null)
+                    mgl.onConnect(gatt);
                 Log.e(TAG, "Connected to GATT server.");
                 Log.e(TAG, "Attempting to start service discovery:" + mBluetoothGatt.discoverServices());
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {//断开
-                if (mOnDisconnectListener != null) mOnDisconnectListener.onDisconnect(gatt);
-                Log.e(TAG, "Disconnected from GATT server.");
+                if (mgl != null) mgl.onDisconnect(gatt);
+                Log.e(TAG, "Disconnected from GATT server."+mBluetoothGatt.discoverServices());
             }
         }
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {//services被发现
-            if (status == BluetoothGatt.GATT_SUCCESS && mOnServiceDiscoverListener != null) {
-                mOnServiceDiscoverListener.onServiceDiscover(gatt);
+            if (status == BluetoothGatt.GATT_SUCCESS && mgl != null) {
+                mgl.onServiceDiscover(gatt);
             } else {
                 Log.e(TAG, "onServicesDiscovered received: " + status);
             }
@@ -168,15 +105,15 @@ public class GattConnectControl {
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
-            if (mOnDataAvailableListener != null)
-                mOnDataAvailableListener.onCharacteristicRead(gatt, characteristic, status);
+            if (mgl != null)
+                mgl.onCharacteristicRead(gatt, characteristic, status);
         }
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
-            if (mOnDataAvailableListener != null)
-                mOnDataAvailableListener.onCharacteristicWrite(gatt, characteristic);
+            if (mgl != null)
+                mgl.onCharacteristicWrite(gatt, characteristic);
         }
     };
 

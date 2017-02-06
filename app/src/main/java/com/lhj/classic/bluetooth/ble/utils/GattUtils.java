@@ -39,7 +39,7 @@ import java.util.List;
 public class GattUtils {
 
     private static HashMap<Integer, String> serviceTypes = new HashMap();
-
+    private static HashMap<String, String> attributes = new HashMap();
     static {
         // Sample Services.
         serviceTypes.put(BluetoothGattService.SERVICE_TYPE_PRIMARY, "PRIMARY");
@@ -150,5 +150,9 @@ public class GattUtils {
             stringBuilder.append(hv);
         }
         return stringBuilder.toString();
+    }
+    public static String lookup(String uuid, String defaultName) {
+        String name = attributes.get(uuid);
+        return name == null||name.equals("") ? defaultName : name;
     }
 }
