@@ -38,7 +38,7 @@ import java.util.ArrayList;
  * 描述：扫描蓝牙适配器
  */
 public class BleBuletoothAdapter extends BaseAdapter {
-    private ArrayList<BleBuletoothDeviceBean> mainList;
+    ArrayList<BleBuletoothDeviceBean> mainList;
     Context context;
     BleSignListener sl;
 
@@ -116,7 +116,7 @@ public class BleBuletoothAdapter extends BaseAdapter {
             holder.uuid.setText(device.getDevice().getName());
             holder.mac.setText(device.getDevice().getAddress());
         }
-        if(holder.item_btn!=null){
+        if (holder.item_btn != null) {
             holder.item_btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

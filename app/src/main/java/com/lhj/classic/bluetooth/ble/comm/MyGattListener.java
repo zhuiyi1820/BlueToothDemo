@@ -68,7 +68,8 @@ public interface MyGattListener {
      *
      * @param gatt
      * @param characteristic
+     * @param status
      */
     void onCharacteristicWrite(BluetoothGatt gatt,
-                               BluetoothGattCharacteristic characteristic);
+                               BluetoothGattCharacteristic characteristic, int status);
 }

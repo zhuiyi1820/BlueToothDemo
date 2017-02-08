@@ -22,6 +22,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
@@ -51,7 +52,7 @@ import java.util.List;
  * ┴┬┴┬┴┬┴ ＼＿＿＿＼　　　　 ﹨／▔＼﹨／▔＼ ╃天天开心╃
  * ▲△▲▲╓╥╥╥╥╥╥╥╥＼　　 ∕　 ／▔﹨　／▔
  * 　＊＊＊╠╬╬╬╬╬╬╬╬＊﹨　　／　　／／ ╃事事顺心╃整和不错
- * <p/>
+ * <p>
  * 作者：linhongjie
  * 时间：2017/1/25 16:36
  * 描述：用于管理蓝牙设备连接和数据服务托管在GATT服务器通信
@@ -88,14 +89,17 @@ public class GattConnectControl {
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {//断开
                 if (mgl != null) mgl.onDisconnect(gatt);
-                Log.e(TAG, "Disconnected from GATT server."+mBluetoothGatt.discoverServices());
+                Log.e(TAG, "Disconnected from GATT server.");
             }
         }
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {//services被发现
-            if (status == BluetoothGatt.GATT_SUCCESS && mgl != null) {
-                mgl.onServiceDiscover(gatt);
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                if (mgl != null) {
+                    mgl.onServiceDiscover(gatt);
+                }
+
             } else {
                 Log.e(TAG, "onServicesDiscovered received: " + status);
             }
@@ -104,16 +108,20 @@ public class GattConnectControl {
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic characteristic,
-                                         int status) {
+                                         int status) {//characteristic被读到
             if (mgl != null)
                 mgl.onCharacteristicRead(gatt, characteristic, status);
         }
 
         @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt,
-                                            BluetoothGattCharacteristic characteristic) {
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {//characteristic被写入
             if (mgl != null)
-                mgl.onCharacteristicWrite(gatt, characteristic);
+                mgl.onCharacteristicWrite(gatt, characteristic, status);
+        }
+
+        @Override
+        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+
         }
     };
 
@@ -196,6 +204,19 @@ public class GattConnectControl {
             return;
         }
         mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
+
+
+        /*BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
+                UUID.fromString(GattUtils.CLIENT_CHARACTERISTIC_CONFIG));
+        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+        mBluetoothGatt.writeDescriptor(descriptor);*/
+
+        List<BluetoothGattDescriptor> descriptors = characteristic.getDescriptors();
+        for (BluetoothGattDescriptor dp : descriptors) {
+            dp.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+            mBluetoothGatt.writeDescriptor(dp);
+        }
+
     }
 
     /**
@@ -212,8 +233,8 @@ public class GattConnectControl {
      *
      * @param characteristic
      */
-    public void writeCharacteristic(BluetoothGattCharacteristic characteristic) {
-        mBluetoothGatt.writeCharacteristic(characteristic);
+    public boolean writeCharacteristic(BluetoothGattCharacteristic characteristic) {
+        return mBluetoothGatt.writeCharacteristic(characteristic);
     }
 
     /**

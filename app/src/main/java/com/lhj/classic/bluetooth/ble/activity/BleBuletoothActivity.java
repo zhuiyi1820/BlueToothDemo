@@ -22,7 +22,6 @@ import com.lhj.classic.bluetooth.base.BaseActivity;
 import com.lhj.classic.bluetooth.ble.adapter.BleBuletoothAdapter;
 import com.lhj.classic.bluetooth.ble.model.BleBuletoothDeviceBean;
 import com.lhj.classic.bluetooth.ble.utils.IbeaconUtils;
-import com.lhj.classic.bluetooth.cls.model.EventBusEntity;
 
 import java.util.ArrayList;
 
@@ -47,7 +46,7 @@ import java.util.ArrayList;
  * ┴┬┴┬┴┬┴ ＼＿＿＿＼　　　　 ﹨／▔＼﹨／▔＼ ╃天天开心╃
  * ▲△▲▲╓╥╥╥╥╥╥╥╥＼　　 ∕　 ／▔﹨　／▔
  * 　＊＊＊╠╬╬╬╬╬╬╬╬＊﹨　　／　　／／ ╃事事顺心╃整和不错
- * <p/>
+ * <p>
  * 作者：linhongjie
  * 时间：2016/11/1 09:48
  * 描述：低功耗蓝牙扫描ibeacon基站
@@ -123,12 +122,9 @@ public class BleBuletoothActivity extends BaseActivity implements View.OnClickLi
         snackbar = Snackbar.make(fab, "搜索蓝牙中...", Snackbar.LENGTH_LONG).setAction("Action", null);
         snackbar.show();
         startAnimation(fab);
-        handler.sendEmptyMessageDelayed(111, 5000);
+        handler.sendEmptyMessageDelayed(111, 50000);
         mBluetoothAdapter.startLeScan(this);
         flag = true;
-    }
-
-    public void onEventMainThread(EventBusEntity eventBusEntity) {
     }
 
 
@@ -297,8 +293,9 @@ public class BleBuletoothActivity extends BaseActivity implements View.OnClickLi
 
     /**
      * onLeScan 方法在Android 5.0以下及Android 5.0及以上所运行的线程不同。
-     * @param device BLE设备
-     * @param rssi  信号强度
+     *
+     * @param device     BLE设备
+     * @param rssi       信号强度
      * @param scanRecord 数据byte[]
      */
     @Override

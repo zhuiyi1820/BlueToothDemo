@@ -14,8 +14,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lhj.classic.bluetooth.R;
-import com.lhj.classic.bluetooth.cls.adapter.BluetoothChatAdapter;
 import com.lhj.classic.bluetooth.base.BaseActivity;
+import com.lhj.classic.bluetooth.cls.adapter.BluetoothChatAdapter;
 import com.lhj.classic.bluetooth.cls.chat.BluetoothChatListener;
 import com.lhj.classic.bluetooth.cls.chat.ChatConnectControl;
 import com.lhj.classic.bluetooth.cls.chat.ChatState;
@@ -132,7 +132,7 @@ public class BlueToothChatActivity extends BaseActivity implements View.OnClickL
             chatIn = new ChatItemBean();
             chatIn.setType(0);
             chatIn.setIcon(BitmapFactory.decodeResource(getResources(),
-                    R.mipmap.in_icon));
+                    R.mipmap.cc_img));
             chatIn.setText(message);
             mdata.add(chatIn);
             mAdapter.notifyDataSetChanged();
