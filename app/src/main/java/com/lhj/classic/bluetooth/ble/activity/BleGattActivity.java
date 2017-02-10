@@ -58,7 +58,6 @@ import java.util.List;
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class BleGattActivity extends BaseActivity implements View.OnClickListener, MyGattListener, ExpandableListView.OnChildClickListener {
     private final static String TAG = BleGattActivity.class.getSimpleName();
-    private final static String UUID_KEY_DATA = "0783b03e-8535-b5a0-7140-a304d2495cbb";
     Handler mHandler = new Handler();
     private final static String LIST_NAME = "NAME";
     private final static String LIST_UUID = "UUID";
@@ -109,6 +108,12 @@ public class BleGattActivity extends BaseActivity implements View.OnClickListene
             initDataAndListener();
         }
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        gc.close();
     }
 
     /**

@@ -96,8 +96,9 @@ public class BleBuletoothAdapter extends BaseAdapter {
             } else {
                 convertView = convertView.inflate(context, R.layout.item_device, null);
                 holder = new ViewHolder();
-                holder.uuid = (TextView) convertView.findViewById(R.id.device_name);
-                holder.mac = (TextView) convertView.findViewById(R.id.device_address);
+                holder.deName = (TextView) convertView.findViewById(R.id.device_name);
+                holder.deAddr = (TextView) convertView.findViewById(R.id.device_address);
+                holder.deBtn = (TextView) convertView.findViewById(R.id.item_btn);
             }
             convertView.setTag(holder);
         } else {
@@ -112,12 +113,16 @@ public class BleBuletoothAdapter extends BaseAdapter {
             holder.distance.setText(device.getDistance() + "米");
             holder.rssi.setText(device.getRssi() + "");
             holder.txPower.setText(device.getTxPower() + "");
-        } else {
-            holder.uuid.setText(device.getDevice().getName());
-            holder.mac.setText(device.getDevice().getAddress());
-        }
-        if (holder.item_btn != null) {
             holder.item_btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    sl.signOperation(device);
+                }
+            });
+        } else {
+            holder.deName.setText(device.getDevice().getName());
+            holder.deAddr.setText(device.getDevice().getAddress());
+            holder.deBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     sl.signOperation(device);
@@ -129,6 +134,9 @@ public class BleBuletoothAdapter extends BaseAdapter {
     }
 
     class ViewHolder {
+        TextView deName;
+        TextView deAddr;
+        TextView deBtn;
         TextView uuid;
         TextView major;
         TextView minor;

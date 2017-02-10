@@ -190,6 +190,7 @@ public class BleBuletoothActivity extends BaseActivity implements View.OnClickLi
 
         if (device.getDevice() != null) {
             stopSearch();
+//            Log.e(TAG,device.getDevice().getName()+"=="+device.getDevice().getAddress());
             Intent it = new Intent(BleBuletoothActivity.this, BleGattActivity.class);
             it.putExtra("device", device.getDevice());
             startActivity(it);
@@ -200,7 +201,7 @@ public class BleBuletoothActivity extends BaseActivity implements View.OnClickLi
     }
 
     /**
-     * 测试数据
+     * ibeacon测试数据
      *
      * @param de
      */
@@ -256,40 +257,50 @@ public class BleBuletoothActivity extends BaseActivity implements View.OnClickLi
 
     }
 
-    private void addData(BluetoothDevice device, int rssi, byte[] scanRecord) {
+    public void addData(BluetoothDevice device, int rssi, byte[] scanRecord) {
         if (device != null) {
             BleBuletoothDeviceBean mdb = IbeaconUtils.fromScanData(new BleBuletoothDeviceBean(), device, rssi, scanRecord);
-            if (mainList.size() <= 0) {
+            if (mainList.size() < 1) {
                 mainList.add(mdb);
 //                addTempData(mdb.getDevice());
                 lvAdapter.notifyDataSetChanged();
                 return;
             }
-            for (int i = 0; i < mainList.size(); i++) {
+
+
+            for (BleBuletoothDeviceBean bbdb : mainList
+                    ) {
+                if (bbdb.getType() == 1) {
+                    if (bbdb.getDevice().getAddress().equals(device.getAddress())) {
+                        bbdb.setDistance(mdb.getDistance());
+                        bbdb.setRssi(mdb.getRssi());
+                        bbdb.setTxPower(mdb.getTxPower());
+                    }
+                } else {
+                    if (!bbdb.getDevice().getAddress().equals(mdb.getDevice().getAddress())) {
+                        mainList.add(mdb);
+                    }
+                }
+            }
+
+            /*for (int i = 0; i < mainList.size(); i++) {
                 if (!mdb.getDevice().getAddress().equals(mainList.get(i).getDevice().getAddress())) {
                     mainList.add(mdb);
                 } else {
-                    if (mainList.get(i).getType() == 1) {
-                        if (!mdb.getDistance().equals(mainList.get(i).getDistance())) {
-                            mainList.get(i).setDistance(mdb.getDistance());
-                        }
-                        if (mdb.getRssi() != mainList.get(i).getRssi()) {
-                            mainList.get(i).setRssi(mdb.getRssi());
-                        }
-                        if (mdb.getTxPower() != mainList.get(i).getTxPower()) {
-                            mainList.get(i).setTxPower(mdb.getTxPower());
-                        }
+                    if (mainList.get(i).getType() == 1&&mainList.get(i).getDevice().getAddress().equals(device.getAddress())) {
+                        mainList.get(i).setDistance(mdb.getDistance());
+                        mainList.get(i).setRssi(mdb.getRssi());
+                        mainList.get(i).setTxPower(mdb.getTxPower());
                     }
 
                 }
-            }
-            Log.e(TAG, mdb.getDevice().getAddress() + "========" + mdb.getMajor());
-            Log.e(TAG, "" + mainList.size());
+            }*/
+            Log.e(TAG, mdb.getDevice().getAddress() + "========" + mdb.getMajor() + "========" + IbeaconUtils.bytesToHexString(scanRecord));
+            Log.e(TAG, "size：" + mainList.size());
             lvAdapter.notifyDataSetChanged();
 
         }
     }
-
 
     /**
      * onLeScan 方法在Android 5.0以下及Android 5.0及以上所运行的线程不同。

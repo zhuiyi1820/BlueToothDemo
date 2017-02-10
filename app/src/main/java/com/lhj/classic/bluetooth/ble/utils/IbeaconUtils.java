@@ -83,7 +83,7 @@ public class IbeaconUtils {
      * @param src
      * @return
      */
-    private static String bytesToHexString(byte[] src) {
+    public static String bytesToHexString(byte[] src) {
         StringBuilder stringBuilder = new StringBuilder("");
         if (src == null || src.length <= 0) {
             return "";
