@@ -168,7 +168,7 @@ public class BleGattActivity extends BaseActivity implements View.OnClickListene
     }
 
     public void writeSomeData() {
-        //UUID_KEY_DATA是可以跟蓝牙模块串口通信的Characteristic
+        //可以跟蓝牙模块串口通信的Characteristic
         Log.e(TAG, "写入的Characteristic：" + mNotifyCharacteristic.getUuid().toString());
         //接受Characteristic被写的通知,收到蓝牙模块的数据后会触发mOnDataAvailable.onCharacteristicWrite()
         gc.setCharacteristicNotification(mNotifyCharacteristic, true);

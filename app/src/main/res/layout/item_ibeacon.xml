@@ -6,11 +6,11 @@
     android:paddingTop="8dp">
 
     <ImageView
-        android:layout_centerVertical="true"
         android:id="@+id/item_left"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
         android:layout_margin="8dp"
         android:src="@drawable/phone" />
 
@@ -41,20 +41,18 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.6"
-                android:text="UUID："
+                android:text="UUID：       "
                 android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/uuid"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.4"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="fda50693-a4e2-4fb1-afcf-c6eb07647825"
+                android:text=""
                 android:textSize="14sp" />
         </LinearLayout>
 
@@ -64,17 +62,17 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.6"
-                android:text="Major："
+                android:text="Major：      "
                 android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/major"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.4"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text=""
                 android:textSize="14sp" />
         </LinearLayout>
@@ -85,17 +83,17 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.6"
-                android:text="Minor："
+                android:text="Minor：      "
                 android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/minor"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.4"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text=""
                 android:textSize="14sp" />
         </LinearLayout>
@@ -103,21 +101,20 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="2">
+            android:orientation="horizontal">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.6"
                 android:text="MacAddr："
                 android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/mac"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.4"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text=""
                 android:textSize="14sp" />
         </LinearLayout>
@@ -125,63 +122,62 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="2">
+            android:orientation="horizontal">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.6"
-                android:text="Distance："
+                android:text="Distance： "
                 android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/distance"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.4"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text=""
                 android:textSize="14sp" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="2">
+            android:orientation="horizontal">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.6"
-                android:text="Rssi："
+                android:text="Rssi：        "
                 android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/rssi"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.4"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text=""
                 android:textSize="14sp" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="2">
+            android:orientation="horizontal">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.6"
                 android:text="TxPower："
                 android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/txPower"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.4"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text=""
                 android:textSize="14sp" />
         </LinearLayout>
@@ -203,8 +199,8 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="10dp"
             android:background="@color/colorAccent"
-            android:padding="5dp"
             android:gravity="center"
+            android:padding="5dp"
             android:text="连接\niBeacon"
             android:textColor="@color/white"
             android:textSize="12sp" />

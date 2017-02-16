@@ -46,10 +46,10 @@ import java.util.ArrayList;
  * ┴┬┴┬┴┬┴ ＼＿＿＿＼　　　　 ﹨／▔＼﹨／▔＼ ╃天天开心╃
  * ▲△▲▲╓╥╥╥╥╥╥╥╥＼　　 ∕　 ／▔﹨　／▔
  * 　＊＊＊╠╬╬╬╬╬╬╬╬＊﹨　　／　　／／ ╃事事顺心╃整和不错
- * <p>
+ * <p/>
  * 作者：linhongjie
  * 时间：2016/11/1 09:48
- * 描述：低功耗蓝牙扫描ibeacon基站
+ * 描述：BLE终端设备发现(扫描ibeacon基站)
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class BleBuletoothActivity extends BaseActivity implements View.OnClickListener, BleBuletoothAdapter.BleSignListener, BluetoothAdapter.LeScanCallback {
@@ -65,6 +65,8 @@ public class BleBuletoothActivity extends BaseActivity implements View.OnClickLi
     TextView base_right_tv;
     ListView lv;
     boolean flag;
+    private final static int SCANNER_TIME = 500000;
+    private final static int SCANNER_STOP = 111;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,13 +118,13 @@ public class BleBuletoothActivity extends BaseActivity implements View.OnClickLi
     }
 
     /**
-     * 搜索ibeancon设备
+     * 搜索BLE设备
      */
     private void startSearch() {
         snackbar = Snackbar.make(fab, "搜索蓝牙中...", Snackbar.LENGTH_LONG).setAction("Action", null);
         snackbar.show();
         startAnimation(fab);
-        handler.sendEmptyMessageDelayed(111, 50000);
+        handler.sendEmptyMessageDelayed(SCANNER_STOP, SCANNER_TIME);
         mBluetoothAdapter.startLeScan(this);
         flag = true;
     }
@@ -147,7 +149,7 @@ public class BleBuletoothActivity extends BaseActivity implements View.OnClickLi
     }
 
     /**
-     * 蓝牙停止搜索ibeancon设备
+     * 蓝牙停止搜索BLE设备
      */
     private void stopSearch() {
         stopAnimation(fab);
@@ -160,7 +162,7 @@ public class BleBuletoothActivity extends BaseActivity implements View.OnClickLi
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
 
-                case 111://搜索5秒后停止搜索
+                case SCANNER_STOP:
                     flag = false;
                     stopSearch();
                     break;
@@ -200,76 +202,20 @@ public class BleBuletoothActivity extends BaseActivity implements View.OnClickLi
 
     }
 
-    /**
-     * ibeacon测试数据
-     *
-     * @param de
-     */
-    public void addTempData(BluetoothDevice de) {
-        BleBuletoothDeviceBean iBeacon = new BleBuletoothDeviceBean();
-        iBeacon.setDistance("111");
-        iBeacon.setTxPower(111);
-        iBeacon.setRssi(111);
-        iBeacon.setProximityUuid("测试1");
-        iBeacon.setDevice(de);
-        iBeacon.setMajor(1);
-        iBeacon.setMinor(1);
-        iBeacon.setType(1);
-        mainList.add(iBeacon);
-        BleBuletoothDeviceBean iBeacon2 = new BleBuletoothDeviceBean();
-        iBeacon2.setDistance("222");
-        iBeacon2.setTxPower(222);
-        iBeacon2.setRssi(222);
-        iBeacon2.setProximityUuid("测试2");
-        iBeacon2.setDevice(de);
-        iBeacon2.setMajor(2);
-        iBeacon2.setMinor(2);
-        iBeacon2.setType(1);
-        mainList.add(iBeacon2);
-        BleBuletoothDeviceBean iBeacon3 = new BleBuletoothDeviceBean();
-        iBeacon3.setDistance("333");
-        iBeacon3.setTxPower(333);
-        iBeacon3.setRssi(333);
-        iBeacon3.setProximityUuid("测试3");
-        iBeacon3.setDevice(de);
-        iBeacon3.setMajor(3);
-        iBeacon3.setMinor(3);
-        iBeacon3.setType(1);
-        mainList.add(iBeacon3);
-        BleBuletoothDeviceBean iBeacon4 = new BleBuletoothDeviceBean();
-        iBeacon4.setType(0);
-        iBeacon4.setDevice(de);
-        mainList.add(iBeacon4);
-        BleBuletoothDeviceBean iBeacon5 = new BleBuletoothDeviceBean();
-        iBeacon5.setDistance("555");
-        iBeacon5.setTxPower(555);
-        iBeacon5.setRssi(555);
-        iBeacon5.setProximityUuid("测试5");
-        iBeacon5.setDevice(de);
-        iBeacon5.setMajor(5);
-        iBeacon5.setMinor(5);
-        iBeacon5.setType(1);
-        mainList.add(iBeacon5);
-        BleBuletoothDeviceBean iBeacon6 = new BleBuletoothDeviceBean();
-        iBeacon6.setType(0);
-        iBeacon6.setDevice(de);
-        mainList.add(iBeacon6);
-
-    }
-
     public void addData(BluetoothDevice device, int rssi, byte[] scanRecord) {
         if (device != null) {
+            /**
+             * 这里调用ibeacon工具类封装bieacon并转换距离
+             * 非ibeacon设备可替换自己的业务
+             */
             BleBuletoothDeviceBean mdb = IbeaconUtils.fromScanData(new BleBuletoothDeviceBean(), device, rssi, scanRecord);
             if (mainList.size() < 1) {
                 mainList.add(mdb);
-//                addTempData(mdb.getDevice());
                 lvAdapter.notifyDataSetChanged();
                 return;
             }
-
-
-            for (BleBuletoothDeviceBean bbdb : mainList
-                    ) {
+            for (int i = 0; i < mainList.size(); i++) {
+                BleBuletoothDeviceBean bbdb = mainList.get(i);
                 if (bbdb.getType() == 1) {
                     if (bbdb.getDevice().getAddress().equals(device.getAddress())) {
                         bbdb.setDistance(mdb.getDistance());
@@ -283,18 +229,6 @@ public class BleBuletoothActivity extends BaseActivity implements View.OnClickLi
                 }
             }
 
-            /*for (int i = 0; i < mainList.size(); i++) {
-                if (!mdb.getDevice().getAddress().equals(mainList.get(i).getDevice().getAddress())) {
-                    mainList.add(mdb);
-                } else {
-                    if (mainList.get(i).getType() == 1&&mainList.get(i).getDevice().getAddress().equals(device.getAddress())) {
-                        mainList.get(i).setDistance(mdb.getDistance());
-                        mainList.get(i).setRssi(mdb.getRssi());
-                        mainList.get(i).setTxPower(mdb.getTxPower());
-                    }
-
-                }
-            }*/
             Log.e(TAG, mdb.getDevice().getAddress() + "========" + mdb.getMajor() + "========" + IbeaconUtils.bytesToHexString(scanRecord));
             Log.e(TAG, "size：" + mainList.size());
             lvAdapter.notifyDataSetChanged();
