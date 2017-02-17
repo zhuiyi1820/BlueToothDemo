@@ -65,7 +65,7 @@ public class BleBuletoothActivity extends BaseActivity implements View.OnClickLi
     TextView base_right_tv;
     ListView lv;
     boolean flag;
-    private final static int SCANNER_TIME = 500000;
+    private final static int SCANNER_TIME = 10000;
     private final static int SCANNER_STOP = 111;
 
     @Override
